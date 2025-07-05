@@ -4,19 +4,82 @@
   <meta charset="UTF-8">
   <title>Sistema de Gestión</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
+    * { box-sizing: border-box; }
+     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding-bottom: 60px;
+      margin: 20px;
     }
 
-    input, button {
+    input, select, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 250px;
+    }
+    .seccion{
+      
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 2px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .close {
+      color: red;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: darkred;
+    }
+
+    input, select, button {
       margin: 5px 0;
       padding: 6px;
-      width: 250px;
+      width: 100%;
+      max-width: 300px;
     }
 
     ul li {
@@ -24,28 +87,20 @@
       margin-bottom: 10px;
     }
 
-    /* Secciones */
-    .seccion {
-      display: none;
-      padding: 20px;
-    }
+    .seccion { display: none; padding: 20px; padding-bottom: 10%; }
+    .activo { display: block; }
 
-    .activo {
-      display: block;
-    }
-
-    /* Menú inferior */
     .menu-inferior {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
       background: #ffffff;
-      color: rgb(0, 0, 0);
+      color: white;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      box-shadow: 0 -2px 5px rgba(17, 0, 255, 0.2);
+      box-shadow: 0 -2px 5px rgba(25, 0, 255, 0.2);
       z-index: 1000;
     }
 
@@ -58,12 +113,8 @@
       cursor: pointer;
     }
 
-    .icono {
-      display: block;
-      font-size: 18px;
-    }
+    .icono { display: block; font-size: 18px; }
 
-    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -85,8 +136,7 @@
     }
 
     #contenedor-imagenes img {
-      width: 80px;
-      height: 80px;
+      width: 80px; height: 80px;
       object-fit: cover;
       margin: 5px;
       border: 2px solid transparent;
@@ -94,13 +144,8 @@
       transition: 0.2s;
     }
 
-    #contenedor-imagenes img:hover {
-      transform: scale(1.05);
-    }
-
-    #contenedor-imagenes img.selected {
-      border-color: #4CAF50;
-    }
+    #contenedor-imagenes img:hover { transform: scale(1.05); }
+    #contenedor-imagenes img.selected { border-color: #4CAF50; }
 
     #buscadorImagen {
       width: 100%;
@@ -111,39 +156,102 @@
 </head>
 <body>
 
-  <!-- Inventario -->
+  
   <div id="inventario" class="seccion activo">
+
+<h2>Sistema</h2>
+  <button onclick="abrirModalVenta()">🛒 Realizar Venta</button>
+
+  <!-- Modal Venta -->
+  <div id="modalVenta" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalVenta()">&times;</span>
+      <h3>Realizar Venta</h3>
+      <select id="productoSelect">
+        <option value="">Selecciona un producto</option>
+      </select>
+      <input type="number" id="cantidadInput" placeholder="Cantidad" min="1">
+      <button onclick="agregarAlCarrito()">Agregar</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="carritoTabla"></tbody>
+      </table>
+
+      <div class="total">Total: S/ <span id="totalVenta">0.00</span></div>
+
+      <button onclick="cancelarVenta()">Cancelar</button>
+      <button onclick="confirmarVenta()">✅ Confirmar Venta</button>
+    </div>
+  </div>
+
+
     <h2>Inventario</h2>
+
     <input type="text" id="nombre" placeholder="Nombre del producto"><br>
-    <input type="number" id="precio" placeholder="Precio"><br>
+
+    <select id="categoriaSelect">
+      <option value="">Selecciona una categoría</option>
+    </select><br>
+
+    <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
+    <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
+
+    <input type="number" id="stock" placeholder="Stock"><br>
+    <input type="number" id="ventas" placeholder="Ventas"><br>
+
     <button onclick="abrirModal()">Seleccionar Imagen</button>
     <input type="hidden" id="imagenSeleccionada"><br><br>
+
     <button onclick="agregarProducto()">Agregar producto</button>
     <button onclick="actualizarProducto()">Actualizar producto</button>
 
     <h3>Lista de Productos</h3>
-    <ul id="lista-productos"></ul>
+    <table>
+  <thead>
+    <tr>
+      <th>Imagen</th>
+      <th>Nombre</th>
+      <th>Categoría</th>
+      <th>Stock</th>
+      <th>Ventas</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="lista-productos">
+    <!-- Aquí se cargarán las filas desde JS -->
+  </tbody>
+</table>
   </div>
 
-  <!-- Ganancias -->
-  <div id="ganancias" class="seccion">
-    <h2>Ganancias</h2>
-    <p>Estadísticas e ingresos próximamente...</p>
+  <div id="ganancias" class="seccion ">
+    <h2>Ganancias Totales</h2>
+    <p><strong>Monto Vendido:</strong> S/ <span id="monto-total">0.00</span></p>
+    <p><strong>Ventas Totales:</strong> <span id="ventas-total">0</span></p>
+    <h4>Historial de Ventas:</h4>
+    <ul id="lista-ventas"></ul>
   </div>
 
-  <!-- Clientes -->
+  </div>
+
   <div id="clientes" class="seccion">
     <h2>Clientes</h2>
-    <p>Clientes que fían y detalles próximamente...</p>
+    <p>Clientes que fían próximamente...</p>
   </div>
 
-  <!-- Modal para seleccionar imagen -->
+  <!-- Modal de selección de imagen -->
   <div class="modal" id="modalImagenes">
     <div class="modal-content">
       <h4>Seleccionar Imagen</h4>
-      <input type="text" id="buscadorImagen" placeholder="Buscar...">
-      <div id="contenedor-imagenes">Cargando imágenes...</div>
-      <br>
+      <input type="text" id="buscadorImagen" placeholder="Buscar imagen...">
+      <div id="contenedor-imagenes">Cargando imágenes...</div><br>
       <button onclick="cerrarModal()">Cerrar</button>
     </div>
   </div>
@@ -151,11 +259,11 @@
   <!-- Menú inferior -->
   <div class="menu-inferior">
     <a onclick="mostrarSeccion('inventario')"><span class="icono">📦</span>Inventario</a>
-    <a onclick="mostrarSeccion('ganancias')"><span class="icono">💰</span>Ganancias</a>
+    <a onclick="mostrarSeccion('ganancias'); mostrarGanancias();"><span class="icono">💰</span>Ganancias</a>  
     <a onclick="mostrarSeccion('clientes')"><span class="icono">👥</span>Clientes</a>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
@@ -171,14 +279,43 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
     let idProductoActual = null;
 
-    function mostrarSeccion(id) {
-      document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activo'));
+   function mostrarSeccion(id) {
+      document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
       document.getElementById(id).classList.add('activo');
     }
+ function mostrarGanancias() {
+      const ventasRef = db.collection("ventadb").orderBy("fecha", "desc");
+      const montoTotalSpan = document.getElementById("monto-total");
+      const ventasTotalSpan = document.getElementById("ventas-total");
+      const listaVentas = document.getElementById("lista-ventas");
 
+      listaVentas.innerHTML = "Cargando ventas...";
+      let total = 0;
+      let contador = 0;
+
+      ventasRef.get().then(snapshot => {
+        listaVentas.innerHTML = "";
+        snapshot.forEach(doc => {
+          const venta = doc.data();
+          total += venta.total;
+          contador++;
+
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>Fecha:</strong> ${new Date(venta.fecha.toDate()).toLocaleString()}<br>
+            <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
+            <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
+          `;
+          listaVentas.appendChild(li);
+        });
+
+        montoTotalSpan.textContent = total.toFixed(2);
+        ventasTotalSpan.textContent = contador;
+      });
+    }
+    
     function abrirModal() {
       document.getElementById('modalImagenes').style.display = 'flex';
       cargarImagenes();
@@ -217,56 +354,85 @@
         }
 
         mostrarFiltradas("");
+        buscador.oninput = () => mostrarFiltradas(buscador.value);
+      });
+    }
 
-        buscador.oninput = () => {
-          mostrarFiltradas(buscador.value);
-        };
+   
+
+    function cargarCategorias() {
+      const select = document.getElementById('categoriaSelect');
+      select.innerHTML = `<option value="">Selecciona una categoría</option>`;
+
+      db.collection("categoriasdb").orderBy("nombre").get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const cat = doc.data();
+            const option = document.createElement("option");
+            option.value = cat.nombre;
+            option.textContent = cat.nombre;
+            select.appendChild(option);
+          });
+        });
+    }
+
+    function agregarCategoria() {
+      const nueva = document.getElementById('nuevaCategoria').value.trim();
+      if (!nueva) return alert("Ingresa el nombre de la categoría");
+
+      db.collection("categoriasdb").add({
+        nombre: nueva,
+        creado: new Date()
+      }).then(() => {
+        alert("✅ Categoría agregada");
+        document.getElementById('nuevaCategoria').value = "";
+        cargarCategorias();
       });
     }
 
     function agregarProducto() {
       const nombre = document.getElementById('nombre').value.trim();
-      const precio = parseFloat(document.getElementById('precio').value);
+      const categoria = document.getElementById('categoriaSelect').value;
+      const stock = parseInt(document.getElementById('stock').value);
+      const ventas = parseInt(document.getElementById('ventas').value);
       const imageUrl = document.getElementById('imagenSeleccionada').value;
 
-      if (!nombre || isNaN(precio) || !imageUrl) {
+      if (!nombre || !categoria || isNaN(stock) || isNaN(ventas) || !imageUrl) {
         alert("Completa todos los campos y selecciona una imagen.");
         return;
       }
 
       db.collection("productodb").add({
-        nombre,
-        precio,
-        imageUrl,
+        nombre, categoria, stock, ventas, imageUrl,
         creado: new Date()
       }).then(() => {
         alert("✅ Producto agregado");
         limpiarFormulario();
         cargarProductos();
-      }).catch(err => alert("❌ Error: " + err.message));
+      });
     }
 
     function actualizarProducto() {
       if (!idProductoActual) return alert("Selecciona un producto para actualizar");
 
       const nombre = document.getElementById('nombre').value.trim();
-      const precio = parseFloat(document.getElementById('precio').value);
+      const categoria = document.getElementById('categoriaSelect').value;
+      const stock = parseInt(document.getElementById('stock').value);
+      const ventas = parseInt(document.getElementById('ventas').value);
       const imageUrl = document.getElementById('imagenSeleccionada').value;
 
-      if (!nombre || isNaN(precio) || !imageUrl) {
-        alert("Completa todos los campos y selecciona una imagen.");
+      if (!nombre || !categoria || isNaN(stock) || isNaN(ventas) || !imageUrl) {
+        alert("Completa todos los campos.");
         return;
       }
 
       db.collection("productodb").doc(idProductoActual).update({
-        nombre,
-        precio,
-        imageUrl
+        nombre, categoria, stock, ventas, imageUrl
       }).then(() => {
         alert("✅ Producto actualizado");
         limpiarFormulario();
         cargarProductos();
-      }).catch(err => alert("❌ Error al actualizar: " + err.message));
+      });
     }
 
     function eliminarProducto(id) {
@@ -275,45 +441,165 @@
         .then(() => {
           alert("✅ Producto eliminado");
           cargarProductos();
-        }).catch(err => alert("❌ Error al eliminar: " + err.message));
+        });
     }
 
-    function seleccionarProducto(id, nombre, precio, imageUrl) {
-      document.getElementById('nombre').value = nombre;
-      document.getElementById('precio').value = precio;
-      document.getElementById('imagenSeleccionada').value = imageUrl;
+    function seleccionarProducto(id, data) {
+      document.getElementById('nombre').value = data.nombre;
+      document.getElementById('categoriaSelect').value = data.categoria;
+      document.getElementById('stock').value = data.stock;
+      document.getElementById('ventas').value = data.ventas;
+      document.getElementById('imagenSeleccionada').value = data.imageUrl;
       idProductoActual = id;
     }
 
     function limpiarFormulario() {
       document.getElementById('nombre').value = "";
-      document.getElementById('precio').value = "";
+      document.getElementById('categoriaSelect').value = "";
+      document.getElementById('stock').value = "";
+      document.getElementById('ventas').value = "";
       document.getElementById('imagenSeleccionada').value = "";
       idProductoActual = null;
     }
 
-    function cargarProductos() {
-      const lista = document.getElementById('lista-productos');
-      lista.innerHTML = "Cargando...";
+   function cargarProductos() {
+  const tbody = document.getElementById('lista-productos');
+  tbody.innerHTML = "<tr><td colspan='6'>Cargando...</td></tr>";
 
-      db.collection("productodb").orderBy("creado", "desc").get()
-        .then(snapshot => {
-          let html = "";
-          snapshot.forEach(doc => {
-            const prod = doc.data();
-            html += `
-              <li>
-                <img src="${prod.imageUrl}" width="50" style="vertical-align:middle;margin-right:8px;">
-                <strong>${prod.nombre}</strong> - S/ ${prod.precio.toFixed(2)}
-                <button onclick="seleccionarProducto('${doc.id}', '${prod.nombre}', ${prod.precio}, '${prod.imageUrl}')">✏️</button>
-                <button onclick="eliminarProducto('${doc.id}')">🗑️</button>
-              </li>`;
-          });
-          lista.innerHTML = html || "<p>No hay productos</p>";
-        });
+  db.collection("productodb").orderBy("creado", "desc").get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        tbody.innerHTML = "<tr><td colspan='6'>No hay productos</td></tr>";
+        return;
+      }
+
+      let html = "";
+      snapshot.forEach(doc => {
+        const prod = doc.data();
+        html += `
+          <tr>
+            <td><img src="${prod.imageUrl}" width="50" style="object-fit:cover; border-radius:4px;"></td>
+            <td>${prod.nombre}</td>
+            <td>${prod.categoria}</td>
+            <td>${prod.stock}</td>
+            <td>${prod.ventas}</td>
+            <td>
+              <button onclick='seleccionarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
+              <button onclick="eliminarProducto('${doc.id}')">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    });
+}
+
+    const carrito = [];
+
+    function abrirModalVenta() {
+      document.getElementById("modalVenta").style.display = "block";
+      cargarProductosEnSelect();
     }
 
-    // Cargar al inicio
+    function cerrarModalVenta() {
+      document.getElementById("modalVenta").style.display = "none";
+      carrito.length = 0;
+      actualizarTabla();
+    }
+
+    function cargarProductosEnSelect() {
+      const select = document.getElementById("productoSelect");
+      select.innerHTML = '<option value="">Selecciona un producto</option>';
+
+      db.collection("productodb").orderBy("nombre").get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const prod = doc.data();
+          const option = document.createElement("option");
+          option.value = JSON.stringify({
+            id: doc.id,
+            nombre: prod.nombre,
+            precio: prod.precio
+          });
+          option.text = `${prod.nombre} - S/ ${prod.precio}`;
+          select.appendChild(option);
+        });
+      });
+    }
+
+    function agregarAlCarrito() {
+      const productoJSON = document.getElementById("productoSelect").value;
+      const cantidad = parseInt(document.getElementById("cantidadInput").value);
+
+      if (!productoJSON || isNaN(cantidad) || cantidad < 1) {
+        alert("Selecciona un producto y una cantidad válida.");
+        return;
+      }
+
+      const producto = JSON.parse(productoJSON);
+      const subtotal = producto.precio * cantidad;
+
+      carrito.push({
+        id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        cantidad,
+        subtotal
+      });
+
+      actualizarTabla();
+    }
+
+    function actualizarTabla() {
+      const tbody = document.getElementById("carritoTabla");
+      tbody.innerHTML = "";
+      let total = 0;
+
+      carrito.forEach(item => {
+        total += item.subtotal;
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.nombre}</td>
+            <td>${item.cantidad}</td>
+            <td>S/ ${item.precio.toFixed(2)}</td>
+            <td>S/ ${item.subtotal.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("totalVenta").innerText = total.toFixed(2);
+    }
+
+    function cancelarVenta() {
+      if (confirm("¿Cancelar la venta actual?")) {
+        carrito.length = 0;
+        actualizarTabla();
+        cerrarModalVenta();
+        document.getElementById("cantidadInput").value = "";
+      }
+    }
+
+    function confirmarVenta() {
+      if (carrito.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+      }
+
+      const venta = {
+        productos: carrito,
+        total: carrito.reduce((sum, item) => sum + item.subtotal, 0),
+        fecha: new Date()
+      };
+
+      db.collection("ventadb").add(venta).then(() => {
+        alert("✅ Venta registrada correctamente.");
+        cancelarVenta();
+      }).catch(err => {
+        alert("❌ Error al registrar la venta: " + err.message);
+      });
+    }
+
+    // Al cargar la página
+    cargarCategorias();
     cargarProductos();
   </script>
 </body>

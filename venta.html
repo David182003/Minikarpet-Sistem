@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Gestión</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    input, select, button {
+      padding: 8px;
+      margin: 5px 0;
+      width: 250px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+  border: 1px solid #ccc;
+  padding: 1px 6px; /* menos padding, filas más delgadas */
+  text-align: center;
+  height: 10px;
+}
+
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    .seccion { display: none; padding: 20px; }
+    .activo { display: block; }
+
+    .menu-inferior {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #4CAF50;
+      color: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    .menu-inferior a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .icono { display: block; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+  <div id="inventario" class="seccion activo">
+    <h2>Inventario</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Stock</th>
+          <th>Ventas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-productos"></tbody>
+    </table>
+  </div>
+
+  <div class="menu-inferior">
+    <a onclick="mostrarSeccion('inventario')"><span class="icono">📦</span>Inventario</a>
+    <a onclick="mostrarSeccion('ganancias'); mostrarGanancias();"><span class="icono">💰</span>Ganancias</a>
+    <a onclick="mostrarSeccion('clientes')"><span class="icono">👥</span>Clientes</a>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwt9dyCf5iF13R2nhar6F2pKIUkT3Om7Q",
+      authDomain: "paguinasweb-14611.firebaseapp.com",
+      projectId: "paguinasweb-14611",
+      storageBucket: "paguinasweb-14611.appspot.com",
+      messagingSenderId: "1083919701171",
+      appId: "1:1083919701171:web:89d0063a1f9e6e357c4cc6"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function mostrarSeccion(id) {
+      document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
+      document.getElementById(id).classList.add('activo');
+    }
+
+    function cargarProductos() {
+      const tbody = document.getElementById("tabla-productos");
+      tbody.innerHTML = "Cargando...";
+
+      db.collection("productodb").orderBy("creado", "desc").get()
+        .then(snapshot => {
+          let html = "";
+          snapshot.forEach(doc => {
+            const p = doc.data();
+            html += `
+              <tr>
+                <td><img src="${p.imageUrl}" width="50"></td>
+                <td>${p.nombre}</td>
+                <td>${p.categoria}</td>
+                <td>${p.stock}</td>
+                <td>${p.ventas}</td>
+                <td>
+                  <button onclick='editarProducto("${doc.id}")'>✏️</button>
+                  <button onclick='eliminarProducto("${doc.id}")'>🗑️</button>
+                </td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = html;
+        });
+    }
+
+    function editarProducto(id) {
+      // Funcionalidad de edición aquí si es necesaria
+      alert("Editar producto " + id);
+    }
+
+    function eliminarProducto(id) {
+      if (confirm("¿Eliminar producto?")) {
+        db.collection("productodb").doc(id).delete().then(() => cargarProductos());
+      }
+    }
+
+    window.onload = cargarProductos;
+  </script>
+</body>
+</html>
