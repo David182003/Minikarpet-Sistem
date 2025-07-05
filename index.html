@@ -1,259 +1,320 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Gestión de Productos con Selector de Imagen</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  input, button { margin: 6px 0; padding: 6px; width: 300px; }
-  ul li { margin-bottom: 10px; list-style: none; }
+  <meta charset="UTF-8">
+  <title>Sistema de Gestión</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding-bottom: 60px;
+    }
 
-  /* Modal */
-  #modalImagenes {
-    display: none; 
-    position: fixed; 
-    z-index: 999; 
-    left: 0; top: 0; 
-    width: 100%; height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.5);
-  }
-  #modalContenido {
-    background-color: #fff;
-    margin: 50px auto; 
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 700px;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  #modalContenido h3 {
-    margin-top: 0;
-  }
-  #inputFiltro {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    font-size: 16px;
-  }
-  #contenedor-imagenes img {
-    width: 80px; height: 80px; object-fit: cover; margin: 5px;
-    border: 2px solid transparent; cursor: pointer; transition: 0.2s;
-  }
-  #contenedor-imagenes img:hover {
-    transform: scale(1.05);
-  }
-  #contenedor-imagenes img.selected {
-    border-color: #4CAF50;
-  }
-</style>
+    input, button {
+      margin: 5px 0;
+      padding: 6px;
+      width: 250px;
+    }
+
+    ul li {
+      list-style: none;
+      margin-bottom: 10px;
+    }
+
+    /* Secciones */
+    .seccion {
+      display: none;
+      padding: 20px;
+    }
+
+    .activo {
+      display: block;
+    }
+
+    /* Menú inferior */
+    .menu-inferior {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #ffffff;
+      color: rgb(0, 0, 0);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    .menu-inferior a {
+      color: rgb(0, 0, 0);
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .icono {
+      display: block;
+      font-size: 18px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 8px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    #contenedor-imagenes img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin: 5px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #contenedor-imagenes img:hover {
+      transform: scale(1.05);
+    }
+
+    #contenedor-imagenes img.selected {
+      border-color: #4CAF50;
+    }
+
+    #buscadorImagen {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Agregar Producto</h2>
-<input type="text" id="nombre" placeholder="Nombre del producto" /><br />
-<input type="number" id="precio" placeholder="Precio" /><br />
+  <!-- Inventario -->
+  <div id="inventario" class="seccion activo">
+    <h2>Inventario</h2>
+    <input type="text" id="nombre" placeholder="Nombre del producto"><br>
+    <input type="number" id="precio" placeholder="Precio"><br>
+    <button onclick="abrirModal()">Seleccionar Imagen</button>
+    <input type="hidden" id="imagenSeleccionada"><br><br>
+    <button onclick="agregarProducto()">Agregar producto</button>
+    <button onclick="actualizarProducto()">Actualizar producto</button>
 
-<!-- Botón para abrir modal -->
-<button onclick="abrirModal()">Seleccionar Imagen</button>
-<p>Imagen seleccionada:</p>
-<img id="imagenSeleccionadaPreview" src="" alt="Ninguna imagen seleccionada" width="120" style="border:1px solid #ccc; margin-bottom:10px;">
-<input type="hidden" id="imagenSeleccionada" />
-
-<br>
-<button onclick="agregarProducto()">Agregar producto</button>
-<button onclick="actualizarProducto()">Actualizar producto</button>
-
-<h3>Lista de Productos</h3>
-<ul id="lista-productos"></ul>
-
-<!-- Modal -->
-<div id="modalImagenes">
-  <div id="modalContenido">
-    <h3>Seleccionar Imagen</h3>
-    <input type="text" id="inputFiltro" placeholder="Filtrar imágenes por nombre..." oninput="filtrarImagenes()" />
-    <div id="contenedor-imagenes">Cargando imágenes...</div>
-    <br>
-    <button onclick="cerrarModal()">Cerrar</button>
+    <h3>Lista de Productos</h3>
+    <ul id="lista-productos"></ul>
   </div>
-</div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Ganancias -->
+  <div id="ganancias" class="seccion">
+    <h2>Ganancias</h2>
+    <p>Estadísticas e ingresos próximamente...</p>
+  </div>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwt9dyCf5iF13R2nhar6F2pKIUkT3Om7Q",
-    authDomain: "paguinasweb-14611.firebaseapp.com",
-    projectId: "paguinasweb-14611",
-    storageBucket: "paguinasweb-14611.appspot.com",
-    messagingSenderId: "1083919701171",
-    appId: "1:1083919701171:web:89d0063a1f9e6e357c4cc6"
-  };
+  <!-- Clientes -->
+  <div id="clientes" class="seccion">
+    <h2>Clientes</h2>
+    <p>Clientes que fían y detalles próximamente...</p>
+  </div>
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  <!-- Modal para seleccionar imagen -->
+  <div class="modal" id="modalImagenes">
+    <div class="modal-content">
+      <h4>Seleccionar Imagen</h4>
+      <input type="text" id="buscadorImagen" placeholder="Buscar...">
+      <div id="contenedor-imagenes">Cargando imágenes...</div>
+      <br>
+      <button onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
 
-  let idProductoActual = null;
-  let todasImagenes = []; // guardamos aquí todas las imágenes para filtrar
+  <!-- Menú inferior -->
+  <div class="menu-inferior">
+    <a onclick="mostrarSeccion('inventario')"><span class="icono">📦</span>Inventario</a>
+    <a onclick="mostrarSeccion('ganancias')"><span class="icono">💰</span>Ganancias</a>
+    <a onclick="mostrarSeccion('clientes')"><span class="icono">👥</span>Clientes</a>
+  </div>
 
-  // Abrir modal y cargar imágenes
-  function abrirModal() {
-    document.getElementById("modalImagenes").style.display = "block";
-    cargarImagenesDisponibles();
-  }
-  function cerrarModal() {
-    document.getElementById("modalImagenes").style.display = "none";
-    document.getElementById("inputFiltro").value = "";
-  }
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-  // Cargar imágenes desde imagenesdb, guardarlas y mostrar
-  function cargarImagenesDisponibles() {
-    const contenedor = document.getElementById("contenedor-imagenes");
-    contenedor.innerHTML = "Cargando imágenes...";
-    db.collection("imagenesdb").orderBy("fecha", "desc").get()
-      .then(snapshot => {
-        todasImagenes = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          data.id = doc.id;
-          todasImagenes.push(data);
-        });
-        mostrarImagenes(todasImagenes);
-      })
-      .catch(err => {
-        contenedor.innerHTML = "Error al cargar imágenes: " + err.message;
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwt9dyCf5iF13R2nhar6F2pKIUkT3Om7Q",
+      authDomain: "paguinasweb-14611.firebaseapp.com",
+      projectId: "paguinasweb-14611",
+      storageBucket: "paguinasweb-14611.appspot.com",
+      messagingSenderId: "1083919701171",
+      appId: "1:1083919701171:web:89d0063a1f9e6e357c4cc6"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let idProductoActual = null;
+
+    function mostrarSeccion(id) {
+      document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activo'));
+      document.getElementById(id).classList.add('activo');
+    }
+
+    function abrirModal() {
+      document.getElementById('modalImagenes').style.display = 'flex';
+      cargarImagenes();
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalImagenes').style.display = 'none';
+    }
+
+    function cargarImagenes() {
+      const contenedor = document.getElementById('contenedor-imagenes');
+      const buscador = document.getElementById('buscadorImagen');
+      contenedor.innerHTML = "Cargando imágenes...";
+
+      db.collection("imagenesdb").orderBy("fecha", "desc").get().then(snapshot => {
+        const todas = [];
+        snapshot.forEach(doc => todas.push(doc.data()));
+
+        function mostrarFiltradas(filtro) {
+          contenedor.innerHTML = "";
+          const filtradas = todas.filter(img => img.nombre.toLowerCase().includes(filtro.toLowerCase()));
+          if (filtradas.length === 0) {
+            contenedor.innerHTML = "<p>No se encontraron imágenes.</p>";
+            return;
+          }
+          filtradas.forEach(data => {
+            const img = document.createElement("img");
+            img.src = data.url;
+            img.alt = data.nombre;
+            img.onclick = () => {
+              document.getElementById('imagenSeleccionada').value = data.url;
+              cerrarModal();
+            };
+            contenedor.appendChild(img);
+          });
+        }
+
+        mostrarFiltradas("");
+
+        buscador.oninput = () => {
+          mostrarFiltradas(buscador.value);
+        };
       });
-  }
-
-  // Mostrar imágenes en el contenedor, con filtro aplicado
-  function mostrarImagenes(imagenes) {
-    const contenedor = document.getElementById("contenedor-imagenes");
-    contenedor.innerHTML = "";
-    if (imagenes.length === 0) {
-      contenedor.innerHTML = "<p>No se encontraron imágenes.</p>";
-      return;
-    }
-    imagenes.forEach(data => {
-      const img = document.createElement("img");
-      img.src = data.url;
-      img.alt = data.nombre;
-      img.title = data.nombre;
-      img.onclick = () => seleccionarImagen(data.url);
-      contenedor.appendChild(img);
-    });
-  }
-
-  // Filtrar imágenes según texto input
-  function filtrarImagenes() {
-    const filtro = document.getElementById("inputFiltro").value.toLowerCase();
-    const filtradas = todasImagenes.filter(img => img.nombre.toLowerCase().includes(filtro));
-    mostrarImagenes(filtradas);
-  }
-
-  // Seleccionar imagen: asignar valor oculto, mostrar preview y cerrar modal
-  function seleccionarImagen(url) {
-    document.getElementById("imagenSeleccionada").value = url;
-    document.getElementById("imagenSeleccionadaPreview").src = url;
-    cerrarModal();
-  }
-
-  // Funciones para productos
-
-  function agregarProducto() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const precio = parseFloat(document.getElementById('precio').value);
-    const imageUrl = document.getElementById('imagenSeleccionada').value;
-
-    if (!nombre || isNaN(precio) || !imageUrl) {
-      alert("Completa todos los campos y selecciona una imagen.");
-      return;
     }
 
-    db.collection("productodb").add({
-      nombre,
-      precio,
-      imageUrl,
-      creado: new Date()
-    }).then(() => {
-      alert("✅ Producto agregado");
-      limpiarFormulario();
-      cargarProductos();
-    }).catch(err => alert("❌ Error: " + err.message));
-  }
+    function agregarProducto() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const precio = parseFloat(document.getElementById('precio').value);
+      const imageUrl = document.getElementById('imagenSeleccionada').value;
 
-  function cargarProductos() {
-    const lista = document.getElementById('lista-productos');
-    lista.innerHTML = "Cargando...";
+      if (!nombre || isNaN(precio) || !imageUrl) {
+        alert("Completa todos los campos y selecciona una imagen.");
+        return;
+      }
 
-    db.collection("productodb").orderBy("creado", "desc").get()
-      .then(snapshot => {
-        let html = "";
-        snapshot.forEach(doc => {
-          const prod = doc.data();
-          html += `
-            <li>
-              <img src="${prod.imageUrl}" width="60" style="vertical-align:middle; margin-right:8px;">
-              <strong>${prod.nombre}</strong> - S/ ${prod.precio.toFixed(2)}
-              <button onclick="seleccionarProducto('${doc.id}', '${prod.nombre}', ${prod.precio}, '${prod.imageUrl}')">✏️</button>
-              <button onclick="eliminarProducto('${doc.id}')">🗑️</button>
-            </li>`;
-        });
-        lista.innerHTML = html || "<p>No hay productos</p>";
-      });
-  }
-
-  function seleccionarProducto(id, nombre, precio, imageUrl) {
-    document.getElementById('nombre').value = nombre;
-    document.getElementById('precio').value = precio;
-    document.getElementById('imagenSeleccionada').value = imageUrl;
-    document.getElementById("imagenSeleccionadaPreview").src = imageUrl;
-    idProductoActual = id;
-  }
-
-  function actualizarProducto() {
-    if (!idProductoActual) return alert("Selecciona un producto para actualizar");
-
-    const nombre = document.getElementById('nombre').value.trim();
-    const precio = parseFloat(document.getElementById('precio').value);
-    const imageUrl = document.getElementById('imagenSeleccionada').value;
-
-    if (!nombre || isNaN(precio) || !imageUrl) {
-      alert("Completa todos los campos y selecciona una imagen.");
-      return;
-    }
-
-    db.collection("productodb").doc(idProductoActual).update({
-      nombre,
-      precio,
-      imageUrl
-    }).then(() => {
-      alert("✅ Producto actualizado");
-      limpiarFormulario();
-      cargarProductos();
-    }).catch(err => alert("❌ Error al actualizar: " + err.message));
-  }
-
-  function eliminarProducto(id) {
-    if (!confirm("¿Eliminar este producto?")) return;
-    db.collection("productodb").doc(id).delete()
-      .then(() => {
-        alert("✅ Producto eliminado");
+      db.collection("productodb").add({
+        nombre,
+        precio,
+        imageUrl,
+        creado: new Date()
+      }).then(() => {
+        alert("✅ Producto agregado");
+        limpiarFormulario();
         cargarProductos();
-      }).catch(err => alert("❌ Error al eliminar: " + err.message));
-  }
+      }).catch(err => alert("❌ Error: " + err.message));
+    }
 
-  function limpiarFormulario() {
-    document.getElementById('nombre').value = "";
-    document.getElementById('precio').value = "";
-    document.getElementById('imagenSeleccionada').value = "";
-    document.getElementById("imagenSeleccionadaPreview").src = "";
-    idProductoActual = null;
-  }
+    function actualizarProducto() {
+      if (!idProductoActual) return alert("Selecciona un producto para actualizar");
 
-  // Al cargar la página
-  cargarProductos();
-</script>
+      const nombre = document.getElementById('nombre').value.trim();
+      const precio = parseFloat(document.getElementById('precio').value);
+      const imageUrl = document.getElementById('imagenSeleccionada').value;
+
+      if (!nombre || isNaN(precio) || !imageUrl) {
+        alert("Completa todos los campos y selecciona una imagen.");
+        return;
+      }
+
+      db.collection("productodb").doc(idProductoActual).update({
+        nombre,
+        precio,
+        imageUrl
+      }).then(() => {
+        alert("✅ Producto actualizado");
+        limpiarFormulario();
+        cargarProductos();
+      }).catch(err => alert("❌ Error al actualizar: " + err.message));
+    }
+
+    function eliminarProducto(id) {
+      if (!confirm("¿Eliminar este producto?")) return;
+      db.collection("productodb").doc(id).delete()
+        .then(() => {
+          alert("✅ Producto eliminado");
+          cargarProductos();
+        }).catch(err => alert("❌ Error al eliminar: " + err.message));
+    }
+
+    function seleccionarProducto(id, nombre, precio, imageUrl) {
+      document.getElementById('nombre').value = nombre;
+      document.getElementById('precio').value = precio;
+      document.getElementById('imagenSeleccionada').value = imageUrl;
+      idProductoActual = id;
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('nombre').value = "";
+      document.getElementById('precio').value = "";
+      document.getElementById('imagenSeleccionada').value = "";
+      idProductoActual = null;
+    }
+
+    function cargarProductos() {
+      const lista = document.getElementById('lista-productos');
+      lista.innerHTML = "Cargando...";
+
+      db.collection("productodb").orderBy("creado", "desc").get()
+        .then(snapshot => {
+          let html = "";
+          snapshot.forEach(doc => {
+            const prod = doc.data();
+            html += `
+              <li>
+                <img src="${prod.imageUrl}" width="50" style="vertical-align:middle;margin-right:8px;">
+                <strong>${prod.nombre}</strong> - S/ ${prod.precio.toFixed(2)}
+                <button onclick="seleccionarProducto('${doc.id}', '${prod.nombre}', ${prod.precio}, '${prod.imageUrl}')">✏️</button>
+                <button onclick="eliminarProducto('${doc.id}')">🗑️</button>
+              </li>`;
+          });
+          lista.innerHTML = html || "<p>No hay productos</p>";
+        });
+    }
+
+    // Cargar al inicio
+    cargarProductos();
+  </script>
 </body>
 </html>
