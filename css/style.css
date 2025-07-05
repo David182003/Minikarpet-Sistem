@@ -159,6 +159,7 @@
     .btn-primary{
         border: 1px solid var(--background);
         border-radius: 5px;
+        height: 35px;
         background-color: var(--secondary-color);
         color: var(--background);
     }
