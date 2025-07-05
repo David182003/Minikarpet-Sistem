@@ -81,8 +81,8 @@
       margin-bottom: 10px;
     }
 
-    .seccion { display: none; padding: 20px; padding-bottom: 10%; }
-    .activo { display: block; }
+    .seccion { display: none; padding: 5%; padding-bottom: 10%; }
+    .activo { display: block;  }
 
     .menu-inferior {
       position: fixed;
