@@ -9,12 +9,13 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-
     input, select, button {
       padding: 8px;
       margin: 5px 0;
       width: 250px;
     }
+    .seccion { display: none; padding: 20px; padding-bottom: 10%; }
+    .activo { display: block; }
 
     table {
       width: 100%;
@@ -23,12 +24,10 @@
     }
 
     th, td {
-  border: 1px solid #ccc;
-  padding: 1px 6px; /* menos padding, filas más delgadas */
-  text-align: center;
-  height: 10px;
-}
-
+      border: 1px solid #ccc;
+      padding: 2px;
+      text-align: center;
+    }
 
     th {
       background-color: #f4f4f4;
@@ -40,25 +39,51 @@
       margin-top: 10px;
     }
 
-    .seccion { display: none; padding: 20px; }
-    .activo { display: block; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 8px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .close {
+      color: red;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
     .menu-inferior {
       position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      background: #4CAF50;
+      background: #ffffff;
       color: white;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 -2px 5px rgba(25, 0, 255, 0.2);
       z-index: 1000;
     }
 
     .menu-inferior a {
-      color: white;
+      color: rgb(0, 0, 0);
       text-align: center;
       text-decoration: none;
       font-size: 14px;
@@ -67,12 +92,89 @@
     }
 
     .icono { display: block; font-size: 18px; }
+
+    #contenedor-imagenes img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin: 5px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #contenedor-imagenes img:hover {
+      transform: scale(1.05);
+    }
+
+    #contenedor-imagenes img.selected {
+      border-color: #4CAF50;
+    }
+
+    #buscadorImagen {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 
+  <!-- SECCIÓN INVENTARIO -->
   <div id="inventario" class="seccion activo">
+    <h4>Agregar Imagen Manualmente</h4>
+    <input type="text" id="nombreImagenManual" placeholder="Nombre de la imagen"><br>
+    <input type="text" id="urlImagenManual" placeholder="URL de la imagen"><br>
+    <button onclick="agregarImagenManual()">📤 Agregar Imagen</button>
+
+    <h2>Sistema</h2>
+    <button onclick="abrirModalVenta()">🛒 Realizar Venta</button>
+
+    <!-- Modal Venta -->
+    <div id="modalVenta" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="cerrarModalVenta()">&times;</span>
+        <h3>Realizar Venta</h3>
+        <select id="productoSelect">
+          <option value="">Selecciona un producto</option>
+        </select>
+        <input type="number" id="cantidadInput" placeholder="Cantidad" min="1">
+        <button onclick="agregarAlCarrito()">Agregar</button>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="carritoTabla"></tbody>
+        </table>
+
+        <div class="total">Total: S/ <span id="totalVenta">0.00</span></div>
+
+        <button onclick="cancelarVenta()">Cancelar</button>
+        <button onclick="confirmarVenta()">✅ Confirmar Venta</button>
+      </div>
+    </div>
+
     <h2>Inventario</h2>
+    <input type="text" id="nombre" placeholder="Nombre del producto"><br>
+    <select id="categoriaSelect">
+      <option value="">Selecciona una categoría</option>
+    </select><br>
+    <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
+    <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
+    <input type="number" id="stock" placeholder="Stock"><br>
+    <input type="number" id="ventas" placeholder="Ventas"><br>
+    <button onclick="abrirModal()">Seleccionar Imagen</button>
+    <input type="hidden" id="imagenSeleccionada"><br><br>
+    <button onclick="agregarProducto()">Agregar producto</button>
+    <button onclick="actualizarProducto()">Actualizar producto</button>
+
+    <h3>Lista de Productos</h3>
     <table>
       <thead>
         <tr>
@@ -84,76 +186,85 @@
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="tabla-productos"></tbody>
+      <tbody id="lista-productos"></tbody>
     </table>
   </div>
 
+  <!-- SECCIÓN GANANCIAS -->
+  <div id="ganancias" class="seccion">
+    <h2>Ganancias Totales</h2>
+    <p><strong>Monto Vendido:</strong> S/ <span id="monto-total">0.00</span></p>
+    <p><strong>Ventas Totales:</strong> <span id="ventas-total">0</span></p>
+    <h4>Historial de Ventas:</h4>
+    <ul id="lista-ventas"></ul>
+  </div>
+
+  <!-- SECCIÓN CLIENTES -->
+  <div id="clientes" class="seccion">
+    <h2>Clientes</h2>
+    <p>Clientes que fían próximamente...</p>
+  </div>
+
+  <!-- Modal Selección Imagen -->
+  <div class="modal" id="modalImagenes">
+    <div class="modal-content">
+      <h4>Seleccionar Imagen</h4>
+      <input type="text" id="buscadorImagen" placeholder="Buscar imagen...">
+      <div id="contenedor-imagenes">Cargando imágenes...</div><br>
+      <button onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Menú Inferior -->
   <div class="menu-inferior">
     <a onclick="mostrarSeccion('inventario')"><span class="icono">📦</span>Inventario</a>
     <a onclick="mostrarSeccion('ganancias'); mostrarGanancias();"><span class="icono">💰</span>Ganancias</a>
     <a onclick="mostrarSeccion('clientes')"><span class="icono">👥</span>Clientes</a>
   </div>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
+  <!-- Lógica JS -->
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCwt9dyCf5iF13R2nhar6F2pKIUkT3Om7Q",
-      authDomain: "paguinasweb-14611.firebaseapp.com",
-      projectId: "paguinasweb-14611",
-      storageBucket: "paguinasweb-14611.appspot.com",
-      messagingSenderId: "1083919701171",
-      appId: "1:1083919701171:web:89d0063a1f9e6e357c4cc6"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    function mostrarSeccion(id) {
-      document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
-      document.getElementById(id).classList.add('activo');
-    }
-
-    function cargarProductos() {
-      const tbody = document.getElementById("tabla-productos");
-      tbody.innerHTML = "Cargando...";
-
-      db.collection("productodb").orderBy("creado", "desc").get()
-        .then(snapshot => {
-          let html = "";
-          snapshot.forEach(doc => {
-            const p = doc.data();
-            html += `
-              <tr>
-                <td><img src="${p.imageUrl}" width="50"></td>
-                <td>${p.nombre}</td>
-                <td>${p.categoria}</td>
-                <td>${p.stock}</td>
-                <td>${p.ventas}</td>
-                <td>
-                  <button onclick='editarProducto("${doc.id}")'>✏️</button>
-                  <button onclick='eliminarProducto("${doc.id}")'>🗑️</button>
-                </td>
-              </tr>
-            `;
-          });
-          tbody.innerHTML = html;
-        });
-    }
-
-    function editarProducto(id) {
-      // Funcionalidad de edición aquí si es necesaria
-      alert("Editar producto " + id);
-    }
-
-    function eliminarProducto(id) {
-      if (confirm("¿Eliminar producto?")) {
-        db.collection("productodb").doc(id).delete().then(() => cargarProductos());
+    // 🔥 Aquí va todo tu script como lo tienes, con la función `confirmarVenta()` modificada así:
+    function confirmarVenta() {
+      if (carrito.length === 0) {
+        alert("El carrito está vacío.");
+        return;
       }
+
+      const venta = {
+        productos: carrito,
+        total: carrito.reduce((sum, item) => sum + item.subtotal, 0),
+        fecha: new Date()
+      };
+
+      db.collection("ventadb").add(venta).then(() => {
+        const batch = db.batch();
+
+        carrito.forEach(item => {
+          const productoRef = db.collection("productodb").doc(item.id);
+          batch.update(productoRef, {
+            stock: firebase.firestore.FieldValue.increment(-item.cantidad),
+            ventas: firebase.firestore.FieldValue.increment(item.cantidad)
+          });
+        });
+
+        return batch.commit();
+      }).then(() => {
+        alert("✅ Venta registrada y stock actualizado correctamente.");
+        cancelarVenta();
+        cargarProductos(); // Refresca lista
+      }).catch(err => {
+        alert("❌ Error al registrar la venta: " + err.message);
+      });
     }
 
-    window.onload = cargarProductos;
+    // 🧠 Asegúrate de que tus productos tengan el campo "precio" en Firestore.
+    // El resto de tu JS queda igual, ya lo tienes excelente.
+
   </script>
 </body>
 </html>
