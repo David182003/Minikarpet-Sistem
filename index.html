@@ -16,7 +16,9 @@
 
 
 <div class="container-venta-button">
+  <h2>Inventario</h2>
     <button class="btn-primary" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
+    <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
 </div>
 
 
@@ -24,6 +26,7 @@
   <div id="modalVenta" class="modal">
     <div class="modal-content">
       <span class="close" onclick="cerrarModalVenta()">&times;</span>
+      
       <h3>Realizar Venta</h3>
       <select id="productoSelect">
         <option value="">Selecciona un producto</option>
@@ -50,15 +53,14 @@
     </div>
   </div>
 
-
-    <h2>Inventario</h2>
-
-    <input type="text" id="nombre" placeholder="Nombre del producto"><br>
-
+ 
+    <!-- <input class="input-nombre" type="text" id="nombre" placeholder="Nombre del producto"><br>
     <select id="categoriaSelect">
-      <option value="">Selecciona una categoría</option>
-    </select><br>
+          <option value="">Selecciona una categoría</option>
+        </select><br>
 
+  
+  
     <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
     <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
 
@@ -68,7 +70,51 @@
     <input type="hidden" id="imagenSeleccionada"><br><br>
 
     <button onclick="agregarProducto()">Agregar producto</button>
-    <button onclick="actualizarProducto()">Actualizar producto</button>
+    <button onclick="actualizarProducto()">Actualizar producto</button>Modal Agregar Producto -->
+
+
+  <div id="modalAgregarProducto" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalAgregarProducto()">&times;</span>
+      <input class="input-nombre" type="text" id="nombre" placeholder="Nombre del producto"><br>
+    <select id="categoriaSelect">
+          <option value="">Selecciona una categoría</option>
+        </select><br>
+
+  
+  
+    <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
+    <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
+
+    <input type="number" id="stock" placeholder="Stock"><br>
+    <input type="number" step="0.01" id="precio" placeholder="Precio" min="0"><br>
+
+
+    <button onclick="abrirModal()">Seleccionar Imagen</button>
+    <input type="hidden" id="imagenSeleccionada"><br><br>
+
+    <button onclick="agregarProducto()">Agregar producto</button>
+    <button onclick="actualizarProducto()">Actualizar producto</button><!-- Modal Agregar Producto -->
+    </div>
+  </div>
+
+
+ <!-- Modal Editar Producto -->
+<div id="modalEditarProducto" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="cerrarModalEditarProducto()">&times;</span>
+    <h3>Editar Producto</h3>
+    <input type="text" id="nombreEditar" placeholder="Nombre">
+<select id="categoriaSelectEditar"></select>
+<input type="number" id="stockEditar" placeholder="Stock" min="0">
+<input type="number" step="0.01" id="precioEditar" placeholder="Precio" min="0"><br>
+<button onclick="abrirModal()">Seleccionar Imagen</button>
+<input type="hidden" id="imagenSeleccionadaEditar">
+<button onclick="actualizarProductoDesdeModal()">Actualizar Producto</button>
+
+  </div>
+</div>
+
 
     <h3>Lista de Productos</h3>
     <table>
@@ -78,8 +124,10 @@
       <th>Nombre</th>
       <th>Categoría</th>
       <th>Stock</th>
+      <th>Precio</th>
       <th>Ventas</th>
       <th>Acciones</th>
+
     </tr>
   </thead>
   <tbody id="lista-productos">
@@ -142,6 +190,16 @@
       document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
       document.getElementById(id).classList.add('activo');
     }
+
+    function abrirModalAgregarProducto() {
+      document.getElementById('modalAgregarProducto').style.display = 'flex';
+      cargarCategorias();
+    }
+
+    function cerrarModalAgregarProducto() {
+      document.getElementById('modalAgregarProducto').style.display = 'none';
+    }
+
  function mostrarGanancias() {
       const ventasRef = db.collection("ventadb").orderBy("fecha", "desc");
       const montoTotalSpan = document.getElementById("monto-total");
@@ -205,40 +263,81 @@ function agregarImagenManual() {
   });
 }
 
+function cargarImagenes() {
+  const contenedor = document.getElementById('contenedor-imagenes');
+  const buscador = document.getElementById('buscadorImagen');
+  contenedor.innerHTML = "Cargando imágenes...";
 
+  db.collection("imagenesdb").orderBy("fecha", "desc").get().then(snapshot => {
+    const todas = [];
+    snapshot.forEach(doc => todas.push(doc.data()));
 
-    function cargarImagenes() {
-      const contenedor = document.getElementById('contenedor-imagenes');
-      const buscador = document.getElementById('buscadorImagen');
-      contenedor.innerHTML = "Cargando imágenes...";
+    function mostrarFiltradas(filtro) {
+      contenedor.innerHTML = "";
+      const filtradas = todas.filter(img => img.nombre.toLowerCase().includes(filtro.toLowerCase()));
 
-      db.collection("imagenesdb").orderBy("fecha", "desc").get().then(snapshot => {
-        const todas = [];
-        snapshot.forEach(doc => todas.push(doc.data()));
+      if (filtradas.length === 0) {
+        contenedor.innerHTML = "<p>No se encontraron imágenes.</p>";
+        return;
+      }
 
-        function mostrarFiltradas(filtro) {
-          contenedor.innerHTML = "";
-          const filtradas = todas.filter(img => img.nombre.toLowerCase().includes(filtro.toLowerCase()));
-          if (filtradas.length === 0) {
-            contenedor.innerHTML = "<p>No se encontraron imágenes.</p>";
-            return;
+      filtradas.forEach(data => {
+        const img = document.createElement("img");
+        img.src = data.url;
+        img.alt = data.nombre;
+        img.style.cursor = "pointer";
+        img.style.width = "100px";
+        img.style.margin = "6px";
+        img.style.border = "2px solid transparent";
+        img.style.borderRadius = "8px";
+
+        img.onclick = () => {
+          // Detectar qué modal está abierto
+          const modalEditar = document.getElementById('modalEditarProducto');
+          const modalAgregar = document.getElementById('modalAgregarProducto');
+
+          if (modalEditar.style.display === 'flex') {
+            document.getElementById('imagenSeleccionadaEditar').value = data.url;
+          } else if (modalAgregar.style.display === 'flex') {
+            document.getElementById('imagenSeleccionada').value = data.url;
           }
-          filtradas.forEach(data => {
-            const img = document.createElement("img");
-            img.src = data.url;
-            img.alt = data.nombre;
-            img.onclick = () => {
-              document.getElementById('imagenSeleccionada').value = data.url;
-              cerrarModal();
-            };
-            contenedor.appendChild(img);
-          });
-        }
 
-        mostrarFiltradas("");
-        buscador.oninput = () => mostrarFiltradas(buscador.value);
+          cerrarModal();
+        };
+
+        contenedor.appendChild(img);
       });
     }
+
+    mostrarFiltradas("");
+    buscador.oninput = () => mostrarFiltradas(buscador.value);
+  });
+}
+
+
+  function cargarProductosEnSelect() {
+  const select = document.getElementById("productoSelect");
+  select.innerHTML = '<option value="">Selecciona un producto</option>';
+
+  db.collection("productodb").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const prod = doc.data();
+
+      // Validamos que el producto tenga precio (debe existir en la BD)
+      if (typeof prod.precio === "number" && prod.precio >= 0) {
+        const option = document.createElement("option");
+        option.value = JSON.stringify({
+          id: doc.id,
+          nombre: prod.nombre,
+          precio: prod.precio
+        });
+        option.textContent = `${prod.nombre} - S/ ${prod.precio.toFixed(2)}`;
+        select.appendChild(option);
+      }
+    });
+  });
+}
+
 
    
 
@@ -271,27 +370,35 @@ function agregarImagenManual() {
         cargarCategorias();
       });
     }
+// Aqui
+function agregarProducto() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const categoria = document.getElementById('categoriaSelect').value;
+  const stock = parseInt(document.getElementById('stock').value);
+  const precio = parseFloat(document.getElementById('precio').value); // <- Asegúrate de tener este input en el formulario
+  const imageUrl = document.getElementById('imagenSeleccionada').value;
 
-    function agregarProducto() {
-      const nombre = document.getElementById('nombre').value.trim();
-      const categoria = document.getElementById('categoriaSelect').value;
-      const stock = parseInt(document.getElementById('stock').value);
-      const imageUrl = document.getElementById('imagenSeleccionada').value;
+  if (!nombre || !categoria || isNaN(stock) || isNaN(precio) || !imageUrl) {
+    alert("Completa todos los campos y selecciona una imagen.");
+    return;
+  }
 
-      if (!nombre || !categoria || isNaN(stock) || isNaN(ventas) || !imageUrl) {
-        alert("Completa todos los campos y selecciona una imagen.");
-        return;
-      }
+  db.collection("productodb").add({
+    nombre,
+    categoria,
+    stock,
+    precio,
+    ventas: 0,
+    imageUrl,
+    creado: new Date()
+  }).then(() => {
+    alert("✅ Producto agregado");
+    limpiarFormulario();
+    cerrarModalAgregarProducto();
+    cargarProductos();
+  });
+}
 
-      db.collection("productodb").add({
-        nombre, categoria, stock, ventas, imageUrl,
-        creado: new Date()
-      }).then(() => {
-        alert("✅ Producto agregado");
-        limpiarFormulario();
-        cargarProductos();
-      });
-    }
 
     function actualizarProducto() {
       if (!idProductoActual) return alert("Selecciona un producto para actualizar");
@@ -303,7 +410,7 @@ function agregarImagenManual() {
       const imageUrl = document.getElementById('imagenSeleccionada').value;
 
       if (!nombre || !categoria || isNaN(stock) || isNaN(ventas) || !imageUrl) {
-        alert("Completa todos los campos.");
+        alert("Completa todos los campos rrr.");
         return;
       }
 
@@ -334,14 +441,13 @@ function agregarImagenManual() {
       idProductoActual = id;
     }
 
-    function limpiarFormulario() {
-      document.getElementById('nombre').value = "";
-      document.getElementById('categoriaSelect').value = "";
-      document.getElementById('stock').value = "";
-      document.getElementById('ventas').value = "";
-      document.getElementById('imagenSeleccionada').value = "";
-      idProductoActual = null;
-    }
+   function limpiarFormulario() {
+  document.getElementById('nombre').value = "";
+  document.getElementById('categoriaSelect').value = "";
+  document.getElementById('stock').value = "";
+  document.getElementById('imagenSeleccionada').value = "";
+  idProductoActual = null;
+}
 
    function cargarProductos() {
   const tbody = document.getElementById('lista-productos');
@@ -363,9 +469,10 @@ function agregarImagenManual() {
             <td>${prod.nombre}</td>
             <td>${prod.categoria}</td>
             <td>${prod.stock}</td>
+            <td>${prod.precio}</td>
             <td>${prod.ventas}</td>
             <td>
-              <button onclick='seleccionarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
+              <button onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
               <button onclick="eliminarProducto('${doc.id}')">🗑️</button>
             </td>
           </tr>
@@ -388,24 +495,66 @@ function agregarImagenManual() {
       actualizarTabla();
     }
 
-    function cargarProductosEnSelect() {
-      const select = document.getElementById("productoSelect");
-      select.innerHTML = '<option value="">Selecciona un producto</option>';
-
-      db.collection("productodb").orderBy("nombre").get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const prod = doc.data();
-          const option = document.createElement("option");
-          option.value = JSON.stringify({
-            id: doc.id,
-            nombre: prod.nombre,
-            precio: prod.precio
-          });
-          option.text = `${prod.nombre} - S/ ${prod.precio}`;
-          select.appendChild(option);
-        });
+  function abrirModalEditarProducto(id, data) {
+  idProductoActual = id;
+  document.getElementById('nombreEditar').value = data.nombre || '';
+  // Cargar categorías (igual que antes)
+  db.collection("categoriasdb").orderBy("nombre").get()
+    .then(snapshot => {
+      const selectEditar = document.getElementById('categoriaSelectEditar');
+      selectEditar.innerHTML = `<option value="">Selecciona una categoría</option>`;
+      snapshot.forEach(doc => {
+        const cat = doc.data();
+        const option = document.createElement("option");
+        option.value = cat.nombre;
+        option.textContent = cat.nombre;
+        if (cat.nombre === data.categoria) option.selected = true;
+        selectEditar.appendChild(option);
       });
-    }
+    });
+  document.getElementById('stockEditar').value = data.stock || 0;
+  document.getElementById('precioEditar').value = data.precio || 0; // <--- aquí
+  document.getElementById('imagenSeleccionadaEditar').value = data.imageUrl || '';
+
+  document.getElementById('modalEditarProducto').style.display = 'flex';
+}
+
+
+function cerrarModalEditarProducto() {
+  document.getElementById('modalEditarProducto').style.display = 'none';
+  idProductoActual = null;
+}
+
+   function actualizarProductoDesdeModal() {
+  if (!idProductoActual) return alert("Selecciona un producto para actualizar");
+
+  const nombre = document.getElementById('nombreEditar').value.trim();
+  const categoria = document.getElementById('categoriaSelectEditar').value;
+  const stock = parseInt(document.getElementById('stockEditar').value);
+  const precio = parseFloat(document.getElementById('precioEditar').value); // <--- nuevo
+  const imageUrl = document.getElementById('imagenSeleccionadaEditar').value;
+
+  if (!nombre || !categoria || isNaN(stock) || isNaN(precio) || !imageUrl) {
+    alert("Completa todos los campos.");
+    return;
+  }
+
+  db.collection("productodb").doc(idProductoActual).update({
+    nombre,
+    categoria,
+    stock,
+    precio,         // <--- actualizamos precio también
+    imageUrl
+  }).then(() => {
+    alert("✅ Producto actualizado");
+    cerrarModalEditarProducto();
+    cargarProductos();
+  }).catch(err => {
+    alert("❌ Error al actualizar producto: " + err.message);
+  });
+}
+
+
 
     function agregarAlCarrito() {
       const productoJSON = document.getElementById("productoSelect").value;
@@ -459,39 +608,54 @@ function agregarImagenManual() {
       }
     }
 
-     function confirmarVenta() {
-      if (carrito.length === 0) {
-        alert("El carrito está vacío.");
-        return;
-      }
+     let ventaEnProceso = false;
 
-      const venta = {
-        productos: carrito,
-        total: carrito.reduce((sum, item) => sum + item.subtotal, 0),
-        fecha: new Date()
-      };
+function confirmarVenta() {
+  if (ventaEnProceso) return; // Evita que se ejecute si ya está en proceso
+  if (carrito.length === 0) {
+    alert("El carrito está vacío.");
+    return;
+  }
 
-      db.collection("ventadb").add(venta).then(() => {
-        const batch = db.batch();
+  ventaEnProceso = true;
+  const btnConfirmar = document.querySelector('#modalVenta button[onclick="confirmarVenta()"]');
+  if (btnConfirmar) btnConfirmar.disabled = true;
 
-        carrito.forEach(item => {
-          const productoRef = db.collection("productodb").doc(item.id);
-          batch.update(productoRef, {
-            stock: firebase.firestore.FieldValue.increment(-item.cantidad),
-            ventas: firebase.firestore.FieldValue.increment(item.cantidad)
-          });
-        });
+  const venta = {
+    productos: carrito,
+    total: carrito.reduce((sum, item) => sum + item.subtotal, 0),
+    fecha: new Date()
+  };
 
-        return batch.commit();
-      }).then(() => {
-        alert("✅ Venta registrada y stock actualizado correctamente.");
-        cancelarVenta();
-        cargarProductos(); // Refresca lista
-      }).catch(err => {
-        alert("❌ Error al registrar la venta: " + err.message);
+  db.collection("ventadb").add(venta).then(() => {
+    const batch = db.batch();
+
+    carrito.forEach(item => {
+      const productoRef = db.collection("productodb").doc(item.id);
+      batch.update(productoRef, {
+        stock: firebase.firestore.FieldValue.increment(-item.cantidad),
+        ventas: firebase.firestore.FieldValue.increment(item.cantidad)
       });
-    }
+    });
 
+    return batch.commit();
+  }).then(() => {
+    alert("✅ Venta registrada y stock actualizado correctamente.");
+    cargarProductos(); // Refresca lista
+    carrito.length = 0;
+    actualizarTabla();
+    cerrarModalVenta();
+  }).catch(err => {
+    alert("❌ Error al registrar la venta: " + err.message);
+  }).finally(() => {
+    ventaEnProceso = false;
+    if (btnConfirmar) btnConfirmar.disabled = false;
+  });
+}
+
+
+
+    
     // Al cargar la página
     cargarCategorias();
     cargarProductos();
