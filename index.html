@@ -443,7 +443,7 @@ function agregarProducto() {
             <td>${prod.nombre}</td>
             <td>${prod.categoria}</td>
             <td>${prod.stock}</td>
-            <td>S/ ${prod.precio}</td>
+            <td>S/ ${prod.precio.toFixed(2)}</td>
             <td>${prod.ventas}</td>
             <td>
               <button onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
