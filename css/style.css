@@ -177,6 +177,13 @@
         background-color: var(--secondary-color);
         color: var(--background);
     }
+    .btn-sold{
+        border: 1px solid var(--primary-color);
+        border-radius: 5px;
+        height: 35px;
+        background-color: var(--primary-color-20);
+        color: var(--primary-color);
+    }
     .container-form-producto{
         display: flex;
         flex-direction: row;
