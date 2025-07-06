@@ -167,8 +167,9 @@
     /* Start */
     
     .title{
-      text-align: center;
-      padding: 2%;
+      text-align: start;
+      font-size: 26px;
+      padding-bottom: 7%;
     }
     .btn-primary{
         border: 1px solid var(--background);
