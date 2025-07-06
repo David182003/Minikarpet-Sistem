@@ -17,13 +17,14 @@
     }
 
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #9b9dff3f;
       padding: 2px;
       text-align: center;
     }
 
     th {
-      background-color: #f4f4f4;
+      background-color: #ff5100;
+      padding: 1% 2%;
     }
 
     .total {
@@ -183,6 +184,13 @@
         border-radius: 5px;
         height: 35px;
         background-color: var(--primary-color-20);
+        color: var(--primary-color);
+    }
+    .btn-edit{
+        border: 1px solid var(--btn-edit-border);
+        border-radius: 5px;
+        height: 35px;
+        background-color: var(--btn-edit-bg);
         color: var(--primary-color);
     }
     .container-form-producto{

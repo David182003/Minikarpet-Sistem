@@ -446,8 +446,8 @@ function agregarProducto() {
             <td>S/ ${prod.precio.toFixed(2)}</td>
             <td>${prod.ventas}</td>
             <td>
-              <button onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
-              <button onclick="eliminarProducto('${doc.id}')">🗑️</button>
+              <button class="btn-edit" onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
+              <button class="btn-delete" onclick="eliminarProducto('${doc.id}')">🗑️</button>
             </td>
           </tr>
         `;

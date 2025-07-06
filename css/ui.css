@@ -21,6 +21,8 @@
     --text-secondary-color: #000000; /* Light Gray */
     --font-family: 'Arial', sans-serif; /* Default font */
     --yape:#fda692;
+    --btn-edit-bg: #0011ff25;
+    --btn-edit-border: #003cff;
     --background-btn-font-color: rgb(248, 235, 235);
 }   
 
