@@ -23,8 +23,9 @@
     }
 
     th {
-      background-color: #ff5100;
+      background-color: #fadedc;
       padding: 1% 2%;
+      color: rgb(0, 0, 0);
     }
 
     .total {
