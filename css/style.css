@@ -91,13 +91,13 @@
   display: none;
   padding: 20px; /* o ajusta según necesidad */
   margin: 0;
+
   height: auto; /* se ajusta al contenido */
 }
 
 .activo {
   display: block;
   height: auto; /* se ajusta al contenido */
-  background-color: rgb(255, 255, 255);
 }
 
 
@@ -165,12 +165,7 @@
     }
 
     /* Start */
-    .container-venta-button {
-      display: block;
-      background-color: red;
-      width: 100%;
-      padding: 10px 0;
-    }
+    
     .title{
       text-align: center;
       padding: 2%;
@@ -229,3 +224,15 @@
   color: #4caf50;
   font-size: 1.2em;
 }
+.container-nav{
+  display: grid;
+  grid-template-columns: 65% 35%;
+}
+.container-venta-left{
+  padding-top: 10px;
+}
+.container-venta-button {
+      display: block;
+      width: 100%;
+      padding: 10px ;
+    }

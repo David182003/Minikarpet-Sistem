@@ -7,137 +7,109 @@
   <link rel="stylesheet" href="css/ui.css">
 </head>
 <body>
-<!-- 
+
   <div id="inventario" class="seccion activo">
-<h4>Agregar Imagen Manualmente</h4>
-<input type="text" id="nombreImagenManual" placeholder="Nombre de la imagen"><br>
-<input type="text" id="urlImagenManual" placeholder="URL de la imagen"><br>
-<button onclick="agregarImagenManual()">📤 Agregar Imagen</button> -->
+    <!-- <h4>Agregar Imagen Manualmente</h4>
+    <input type="text" id="nombreImagenManual" placeholder="Nombre de la imagen"><br>
+    <input type="text" id="urlImagenManual" placeholder="URL de la imagen"><br>
+    <button onclick="agregarImagenManual()">📤 Agregar Imagen</button> -->
 
+    <h2 class="title">Inventario</h2>
+    <div class="container-nav">
+      <div class="container-venta-left">
+        <h3>Lista de Productos</h3>
+      </div>
+      <div class="container-venta-button">
+          <button class="btn-primary" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
+          <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
+      </div>
+    </div>
 
+    <!-- Modal Venta -->  
+    <div id="modalVenta" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="cerrarModalVenta()">&times;</span>
+        
+        <h3>Realizar Venta</h3>
+        <select id="productoSelect">
+          <option value="">Selecciona un producto</option>
+        </select>
+        <input type="number" id="cantidadInput" placeholder="Cantidad" min="1">
+        <button onclick="agregarAlCarrito()">Agregar</button>
 
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="carritoTabla"></tbody>
+        </table>
 
+        <div class="total">Total: S/ <span id="totalVenta">0.00</span></div>
 
-  <!-- Modal Venta --> 
-  <div id="modalVenta" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="cerrarModalVenta()">&times;</span>
+        <button onclick="cancelarVenta()">Cancelar</button>
+        <button onclick="confirmarVenta()">✅ Confirmar Venta</button>
+      </div>
+    </div>
+
+    <!-- Modal Agregar Producto -->
+    <div id="modalAgregarProducto" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="cerrarModalAgregarProducto()">&times;</span>
+        <input class="input-nombre" type="text" id="nombre" placeholder="Nombre del producto"><br>
+        <select id="categoriaSelect">
+            <option value="">Selecciona una categoría</option>
+          </select><br>
+        <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
+        <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
+        <input type="number" id="stock" placeholder="Stock"><br>
+        <input type="number" step="0.01" id="precio" placeholder="Precio" min="0"><br>
+        <button onclick="abrirModal()">Seleccionar Imagen</button>
+        <input type="hidden" id="imagenSeleccionada"><br><br>
+        <button onclick="agregarProducto()">Agregar producto</button>
+        <button onclick="actualizarProducto()">Actualizar producto</button><!-- Modal Agregar Producto -->
+      </div>
+    </div>
+
+    <!-- Modal Editar Producto -->
+    <div id="modalEditarProducto" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="cerrarModalEditarProducto()">&times;</span>
+        <h3>Editar Producto</h3>
+        <input type="text" id="nombreEditar" placeholder="Nombre">
+        <select id="categoriaSelectEditar"></select>
+        <input type="number" id="stockEditar" placeholder="Stock" min="0">
+        <input type="number" step="0.01" id="precioEditar" placeholder="Precio" min="0"><br>
+        <button onclick="abrirModal()">Seleccionar Imagen</button>
+        <input type="hidden" id="imagenSeleccionadaEditar">
+        <button onclick="actualizarProductoDesdeModal()">Actualizar Producto</button>
+      </div>
+    </div>
+
       
-      <h3>Realizar Venta</h3>
-      <select id="productoSelect">
-        <option value="">Selecciona un producto</option>
-      </select>
-      <input type="number" id="cantidadInput" placeholder="Cantidad" min="1">
-      <button onclick="agregarAlCarrito()">Agregar</button>
-
       <table>
         <thead>
           <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Stock</th>
             <th>Precio</th>
-            <th>Subtotal</th>
+            <th>Ventas</th>
+            <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="carritoTabla"></tbody>
+        <tbody id="lista-productos">
+        <!-- Aquí se cargarán las filas desde JS -->
+        </tbody>
       </table>
-
-      <div class="total">Total: S/ <span id="totalVenta">0.00</span></div>
-
-      <button onclick="cancelarVenta()">Cancelar</button>
-      <button onclick="confirmarVenta()">✅ Confirmar Venta</button>
-    </div>
   </div>
-
- 
-    <!-- <input class="input-nombre" type="text" id="nombre" placeholder="Nombre del producto"><br>
-    <select id="categoriaSelect">
-          <option value="">Selecciona una categoría</option>
-        </select><br>
-
   
-  
-    <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
-    <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
-
-    <input type="number" id="stock" placeholder="Stock"><br>
-
-    <button onclick="abrirModal()">Seleccionar Imagen</button>
-    <input type="hidden" id="imagenSeleccionada"><br><br>
-
-    <button onclick="agregarProducto()">Agregar producto</button>
-    <button onclick="actualizarProducto()">Actualizar producto</button>Modal Agregar Producto -->
-
-
-  <div id="modalAgregarProducto" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="cerrarModalAgregarProducto()">&times;</span>
-      <input class="input-nombre" type="text" id="nombre" placeholder="Nombre del producto"><br>
-    <select id="categoriaSelect">
-          <option value="">Selecciona una categoría</option>
-        </select><br>
-
-  
-  
-    <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
-    <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
-
-    <input type="number" id="stock" placeholder="Stock"><br>
-    <input type="number" step="0.01" id="precio" placeholder="Precio" min="0"><br>
-
-
-    <button onclick="abrirModal()">Seleccionar Imagen</button>
-    <input type="hidden" id="imagenSeleccionada"><br><br>
-
-    <button onclick="agregarProducto()">Agregar producto</button>
-    <button onclick="actualizarProducto()">Actualizar producto</button><!-- Modal Agregar Producto -->
-    </div>
-  </div>
-
-
- <!-- Modal Editar Producto -->
-<div id="modalEditarProducto" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="cerrarModalEditarProducto()">&times;</span>
-    <h3>Editar Producto</h3>
-    <input type="text" id="nombreEditar" placeholder="Nombre">
-<select id="categoriaSelectEditar"></select>
-<input type="number" id="stockEditar" placeholder="Stock" min="0">
-<input type="number" step="0.01" id="precioEditar" placeholder="Precio" min="0"><br>
-<button onclick="abrirModal()">Seleccionar Imagen</button>
-<input type="hidden" id="imagenSeleccionadaEditar">
-<button onclick="actualizarProductoDesdeModal()">Actualizar Producto</button>
-
-  </div>
-</div>
-
-    <h2 class="title">Inventario</h2>
-
-    <h3>Lista de Productos</h3>
-
-    <div class="container-venta-button">
-        <button class="btn-primary" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
-        <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
-    </div>
-    <table>
-  <thead>
-    <tr>
-      <th>Imagen</th>
-      <th>Nombre</th>
-      <th>Categoría</th>
-      <th>Stock</th>
-      <th>Precio</th>
-      <th>Ventas</th>
-      <th>Acciones</th>
-
-    </tr>
-  </thead>
-  <tbody id="lista-productos">
-    <!-- Aquí se cargarán las filas desde JS -->
-  </tbody>
-</table>
-  </div>
-
+  <!-- Seccion Ganancias -->
   <div id="ganancias" class="seccion ">
     <h2>Ganancias Totales</h2>
     <p><strong>Monto Vendido:</strong> S/ <span id="monto-total">0.00</span></p>
@@ -146,8 +118,7 @@
     <ul id="lista-ventas"></ul>
   </div>
 
-  </div>
-
+  <!-- Seccion Clientes -->
   <div id="clientes" class="seccion">
     <h2>Clientes</h2>
     <p>Clientes que fían próximamente...</p>
