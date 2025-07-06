@@ -7,22 +7,18 @@
   <link rel="stylesheet" href="css/ui.css">
 </head>
 <body>
-
+<!-- 
   <div id="inventario" class="seccion activo">
 <h4>Agregar Imagen Manualmente</h4>
 <input type="text" id="nombreImagenManual" placeholder="Nombre de la imagen"><br>
 <input type="text" id="urlImagenManual" placeholder="URL de la imagen"><br>
-<button onclick="agregarImagenManual()">📤 Agregar Imagen</button>
+<button onclick="agregarImagenManual()">📤 Agregar Imagen</button> -->
 
 
-<div class="container-venta-button">
-  <h2>Inventario</h2>
-    <button class="btn-primary" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
-    <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
-</div>
 
 
-  <!-- Modal Venta -->
+
+  <!-- Modal Venta --> 
   <div id="modalVenta" class="modal">
     <div class="modal-content">
       <span class="close" onclick="cerrarModalVenta()">&times;</span>
@@ -115,8 +111,14 @@
   </div>
 </div>
 
+    <h2 class="title">Inventario</h2>
 
     <h3>Lista de Productos</h3>
+
+    <div class="container-venta-button">
+        <button class="btn-primary" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
+        <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
+    </div>
     <table>
   <thead>
     <tr>
