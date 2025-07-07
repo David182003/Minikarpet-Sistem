@@ -441,7 +441,7 @@ function agregarProducto() {
       snapshot.forEach(doc => {
         const prod = doc.data();
         html += `
-          <tr class="tr">
+          <tr class="tr tr-hover">
             <td><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
             <td>${prod.nombre}</td>
             <td>${prod.categoria}</td>
