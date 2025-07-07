@@ -285,3 +285,13 @@ th {
   #modalAccionesProducto .modal-content button:hover {
     background-color: #f0f0f0;
   }
+  .title-historial{
+    padding: 2% 0%;
+  }
+  .venta-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+  }

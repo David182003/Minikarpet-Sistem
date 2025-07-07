@@ -118,12 +118,15 @@
     <h2>Ganancias Totales</h2>
     <p><strong>Monto Vendido:</strong> S/ <span id="monto-total">0.00</span></p>
     <p><strong>Ventas Totales:</strong> <span id="ventas-total">0</span></p>
-    <h4>Historial de Ventas:</h4>
     <canvas id="graficoGanancias" height="100"></canvas>
-    <h4>Historial de Ventas:</h4>
+    <h4 class="title-historial">Historial de Ventas:</h4>
     <label for="fechaFiltro">Buscar por fecha:</label>
-    <input type="date" id="fechaFiltro" onchange="filtrarVentasPorFecha()">
+    <input type="date" id="fechaFiltro"  onchange="filtrarVentasPorFecha()">
     <ul id="ventas-del-dia"></ul>
+
+    <h3 class="title-historial">Productos más vendidos (día seleccionado):</h3>
+<canvas id="graficoMasVendidos" height="100"></canvas>
+
 
   </div>
 
@@ -258,12 +261,29 @@ function filtrarVentasPorFecha() {
     .then(snapshot => {
       if (snapshot.empty) {
         listaVentasDia.innerHTML = "<li>No hay ventas para esta fecha.</li>";
+        document.getElementById("monto-total").textContent = "0.00";
+        document.getElementById("ventas-total").textContent = "0";
+        actualizarGraficoMasVendidos({});
         return;
       }
+
+      let total = 0;
+      let contador = 0;
+      const conteoProductos = {};
 
       listaVentasDia.innerHTML = "";
       snapshot.forEach(doc => {
         const venta = doc.data();
+        total += venta.total;
+        contador++;
+
+        venta.productos.forEach(p => {
+          if (!conteoProductos[p.nombre]) {
+            conteoProductos[p.nombre] = 0;
+          }
+          conteoProductos[p.nombre] += p.cantidad;
+        });
+
         const li = document.createElement("li");
         li.innerHTML = `
           <strong>Fecha:</strong> ${venta.fecha.toDate().toLocaleString()}<br>
@@ -272,8 +292,67 @@ function filtrarVentasPorFecha() {
         `;
         listaVentasDia.appendChild(li);
       });
+
+      document.getElementById("monto-total").textContent = total.toFixed(2);
+      document.getElementById("ventas-total").textContent = contador;
+
+      actualizarGraficoMasVendidos(conteoProductos);
     });
 }
+
+let graficoMasVendidosInstance = null;
+
+function actualizarGraficoMasVendidos(conteoProductos) {
+  // Convertir el objeto en array y ordenar por cantidad descendente
+  const productosOrdenados = Object.entries(conteoProductos)
+    .sort((a, b) => b[1] - a[1]); // b - a = mayor a menor
+
+  // Construir etiquetas con TOP
+  const labels = productosOrdenados.map((item, index) => `Top ${index + 1}: ${item[0]}`);
+  const cantidades = productosOrdenados.map(item => item[1]);
+
+  const ctx = document.getElementById('graficoMasVendidos').getContext('2d');
+
+  if (graficoMasVendidosInstance) {
+    graficoMasVendidosInstance.destroy();
+  }
+
+  graficoMasVendidosInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Cantidad Vendida',
+        data: cantidades,
+        backgroundColor: '#FF9800',
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Top productos más vendidos del día'
+        },
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Unidades vendidas'
+          }
+        }
+      }
+    }
+  });
+}
+
+
 
 
 function mostrarVentasDelDiaActual() {
@@ -303,9 +382,12 @@ function mostrarVentasDelDiaActual() {
         const venta = doc.data();
         const li = document.createElement("li");
         li.innerHTML = `
+        <div class="venta-item">
+          <strong>ID:</strong> ${doc.id}<br>
           <strong>Fecha:</strong> ${venta.fecha.toDate().toLocaleString()}<br>
           <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
           <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
+        </div>
         `;
         listaVentasDia.appendChild(li);
       });
@@ -325,6 +407,7 @@ mostrarGraficoGananciasUltimos7Dias();
   if (id === 'ganancias') {
     mostrarGanancias();
     mostrarVentasDelDiaActual(); 
+    
     mostrarGraficoGananciasUltimos7Dias();// si deseas mantener visible las ventas de hoy
   }
 }
@@ -369,6 +452,7 @@ mostrarGraficoGananciasUltimos7Dias();
         ventasTotalSpan.textContent = contador;
       });
     }
+
     
     function abrirModal() {
       document.getElementById('modalImagenes').style.display = 'flex';
