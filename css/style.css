@@ -198,7 +198,7 @@
         border-radius: 5px;
         height: 35px;
         width: 80%;
-        background-color: var(--btn-edit-bg);
+        background-color: blue;
         color: var(--primary-color);
     }
     .btn-delete{
