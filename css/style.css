@@ -23,8 +23,9 @@
     }
 
     th {
-      background-color: #fadedc;
+      background-color: #ffdedc;
       padding: 1% 2%;
+      width: 20px;
       color: rgb(0, 0, 0);
     }
 
@@ -253,3 +254,16 @@
       width: 100%;
       padding: 10px ;
     }
+
+ #modalAccionesProducto .modal-content button {
+    width: 100%;
+    margin: 8px 0;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #modalAccionesProducto .modal-content button:hover {
+    background-color: #f0f0f0;
+  }

@@ -91,6 +91,8 @@
       </div>
     </div>
 
+   
+
       
       <table>
         <thead>
@@ -445,7 +447,7 @@ function agregarProducto() {
             <td>${prod.stock}</td>
             <td>S/ ${prod.precio.toFixed(2)}</td>
             <td>${prod.ventas}</td>
-            <td>
+            <td class="acciones">
               <button class="btn-edit" onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
               <button class="btn-delete" onclick="eliminarProducto('${doc.id}')">🗑️</button>
             </td>
@@ -487,7 +489,7 @@ function agregarProducto() {
       });
     });
   document.getElementById('stockEditar').value = data.stock || 0;
-  document.getElementById('precioEditar').value = data.precio || 0; // <--- aquí
+  document.getElementById('precioEditar').value = data.precio.toFixed(2) || 0; // <--- aquí
   document.getElementById('imagenSeleccionadaEditar').value = data.imageUrl || '';
 
   document.getElementById('modalEditarProducto').style.display = 'flex';
