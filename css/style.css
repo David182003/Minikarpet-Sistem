@@ -15,20 +15,25 @@
       border-collapse: collapse;
       margin-top: 15px;
     }
-
+    .acciones{
+      width: 10px;
+    }
     th, td {
-      border: 1px solid #9b9dff3f;
+      /* border: 1px solid #9b9dff3f; */
       padding: 2px;
+      width: 10px;
       text-align: center;
+      overflow: hidden;
     }
 
     th {
       background-color: #ffdedc;
       padding: 1% 2%;
-      width: 20px;
       color: rgb(0, 0, 0);
     }
-
+    .tr{
+      border: 1px solid rgb(204, 213, 255);
+    }
     .total {
       font-weight: bold;
       font-size: 1.2em;
@@ -188,13 +193,22 @@
         background-color: var(--primary-color-20);
         color: var(--primary-color);
     }
-    .btn-edit{
+    .btn-edit {
         border: 1px solid var(--btn-edit-border);
         border-radius: 5px;
         height: 35px;
+        width: 80%;
         background-color: var(--btn-edit-bg);
         color: var(--primary-color);
     }
+    .btn-delete{
+        width: 80%;
+        border-radius: 5px;
+        height: 35px;
+        border: 1px solid rgb(117, 0, 0);
+        background-color: rgb(255, 0, 0);
+    }
+
     .container-form-producto{
         display: flex;
         flex-direction: row;
