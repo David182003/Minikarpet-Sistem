@@ -98,8 +98,7 @@
 .seccion {
   display: none;
   padding: 20px; /* o ajusta según necesidad */
-  margin: 0;
-
+  margin-bottom: 7%;
   height: auto; /* se ajusta al contenido */
 }
 
