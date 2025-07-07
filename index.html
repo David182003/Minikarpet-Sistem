@@ -120,7 +120,11 @@
     <p><strong>Ventas Totales:</strong> <span id="ventas-total">0</span></p>
     <h4>Historial de Ventas:</h4>
     <canvas id="graficoGanancias" height="100"></canvas>
-    <ul id="lista-ventas"></ul>
+    <h4>Historial de Ventas:</h4>
+    <label for="fechaFiltro">Buscar por fecha:</label>
+    <input type="date" id="fechaFiltro" onchange="filtrarVentasPorFecha()">
+    <ul id="ventas-del-dia"></ul>
+
   </div>
 
   <!-- Seccion Clientes -->
@@ -232,15 +236,99 @@
   });
 }
 
-mostrarSeccion('ganancias'); mostrarGanancias();
-mostrarSeccion('ganancias'); mostrarGanancias(); mostrarGraficoGananciasUltimos7Dias();
+
+
+function filtrarVentasPorFecha() {
+  const inputFecha = document.getElementById('fechaFiltro');
+  const listaVentasDia = document.getElementById('ventas-del-dia');
+  const fechaSeleccionada = inputFecha.value;
+
+  if (!fechaSeleccionada) return;
+
+  const fechaInicio = new Date(fechaSeleccionada + "T00:00:00");
+  const fechaFin = new Date(fechaSeleccionada + "T23:59:59");
+
+  listaVentasDia.innerHTML = "Buscando ventas...";
+
+  db.collection("ventadb")
+    .where("fecha", ">=", fechaInicio)
+    .where("fecha", "<=", fechaFin)
+    .orderBy("fecha", "desc")
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        listaVentasDia.innerHTML = "<li>No hay ventas para esta fecha.</li>";
+        return;
+      }
+
+      listaVentasDia.innerHTML = "";
+      snapshot.forEach(doc => {
+        const venta = doc.data();
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>Fecha:</strong> ${venta.fecha.toDate().toLocaleString()}<br>
+          <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
+          <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
+        `;
+        listaVentasDia.appendChild(li);
+      });
+    });
+}
+
+
+function mostrarVentasDelDiaActual() {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const mañana = new Date(hoy);
+  mañana.setDate(mañana.getDate() + 1);
+  mañana.setHours(0, 0, 0, 0);
+
+  const listaVentasDia = document.getElementById('ventas-del-dia');
+  listaVentasDia.innerHTML = "Cargando ventas del día...";
+
+  db.collection("ventadb")
+    .where("fecha", ">=", hoy)
+    .where("fecha", "<", mañana)
+    .orderBy("fecha", "desc")
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        listaVentasDia.innerHTML = "<li>No hay ventas hoy.</li>";
+        return;
+      }
+
+      listaVentasDia.innerHTML = "";
+      snapshot.forEach(doc => {
+        const venta = doc.data();
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>Fecha:</strong> ${venta.fecha.toDate().toLocaleString()}<br>
+          <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
+          <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
+        `;
+        listaVentasDia.appendChild(li);
+      });
+    });
+  
+}
+mostrarVentasDelDiaActual();
+mostrarGraficoGananciasUltimos7Dias();
+
 
 
 
    function mostrarSeccion(id) {
-      document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
-      document.getElementById(id).classList.add('activo');
-    }
+  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
+  document.getElementById(id).classList.add('activo');
+
+  if (id === 'ganancias') {
+    mostrarGanancias();
+    mostrarVentasDelDiaActual(); 
+    mostrarGraficoGananciasUltimos7Dias();// si deseas mantener visible las ventas de hoy
+  }
+}
+
 
     function abrirModalAgregarProducto() {
       document.getElementById('modalAgregarProducto').style.display = 'flex';
