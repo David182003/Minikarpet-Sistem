@@ -198,18 +198,19 @@
       data: {
         labels: dias,
         datasets: [
-          {
-            type: 'bar',
-            label: 'Ganancia',
-            backgroundColor: '#4CAF50',
-            data: gananciasPorDia
-          },
+          
           {
             type: 'line',
             label: 'Tendencia',
             borderColor: '#2196F3',
             borderWidth: 2,
             fill: false,
+            data: gananciasPorDia
+          },{
+            type: 'bar',
+            label: 'Ganancia',
+            backgroundColor: '#00e408',
+            borderRadius: 5,
             data: gananciasPorDia
           }
         ]
