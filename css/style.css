@@ -198,7 +198,8 @@
         border-radius: 5px;
         height: 35px;
         width: 80%;
-        background-color: blue;
+        margin: 0px 5px;
+        background-color: rgba(151, 175, 255, 0.425);
         color: var(--primary-color);
     }
     .btn-delete{
@@ -206,7 +207,7 @@
         border-radius: 5px;
         height: 35px;
         border: 1px solid rgb(117, 0, 0);
-        background-color: rgb(255, 0, 0);
+        background-color: rgba(255, 168, 168, 0.281);
     }
 
     .container-form-producto{
