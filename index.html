@@ -119,6 +119,7 @@
     <p><strong>Monto Vendido:</strong> S/ <span id="monto-total">0.00</span></p>
     <p><strong>Ventas Totales:</strong> <span id="ventas-total">0</span></p>
     <h4>Historial de Ventas:</h4>
+    <canvas id="graficoGanancias" height="100"></canvas>
     <ul id="lista-ventas"></ul>
   </div>
 
@@ -162,6 +163,78 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let idProductoActual = null;
+
+    function mostrarGraficoGananciasUltimos7Dias() {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  
+  const dias = [];
+  const gananciasPorDia = new Array(7).fill(0);
+
+  for (let i = 6; i >= 0; i--) {
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() - i);
+    dias.push(fecha.toLocaleDateString('es-PE', { weekday: 'short' }));
+  }
+
+  db.collection("ventadb").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const venta = doc.data();
+      const fechaVenta = venta.fecha.toDate();
+      fechaVenta.setHours(0, 0, 0, 0);
+
+      for (let i = 0; i < 7; i++) {
+        const fechaComparar = new Date(hoy);
+        fechaComparar.setDate(hoy.getDate() - (6 - i));
+        if (fechaVenta.getTime() === fechaComparar.getTime()) {
+          gananciasPorDia[i] += venta.total;
+        }
+      }
+    });
+
+    const ctx = document.getElementById('graficoGanancias').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: dias,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Ganancia',
+            backgroundColor: '#4CAF50',
+            data: gananciasPorDia
+          },
+          {
+            type: 'line',
+            label: 'Tendencia',
+            borderColor: '#2196F3',
+            borderWidth: 2,
+            fill: false,
+            data: gananciasPorDia
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: 'Ganancias últimos 7 días' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: v => `S/ ${v}` }
+          }
+        }
+      }
+    });
+  });
+}
+
+mostrarSeccion('ganancias'); mostrarGanancias();
+mostrarSeccion('ganancias'); mostrarGanancias(); mostrarGraficoGananciasUltimos7Dias();
+
+
 
    function mostrarSeccion(id) {
       document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
@@ -316,8 +389,6 @@ function cargarImagenes() {
 }
 
 
-   
-
     function cargarCategorias() {
       const select = document.getElementById('categoriaSelect');
       select.innerHTML = `<option value="">Selecciona una categoría</option>`;
@@ -347,7 +418,8 @@ function cargarImagenes() {
         cargarCategorias();
       });
     }
-// Aqui
+
+
 function agregarProducto() {
   const nombre = document.getElementById('nombre').value.trim();
   const categoria = document.getElementById('categoriaSelect').value;
@@ -531,8 +603,6 @@ function cerrarModalEditarProducto() {
   });
 }
 
-
-
     function agregarAlCarrito() {
       const productoJSON = document.getElementById("productoSelect").value;
       const cantidad = parseInt(document.getElementById("cantidadInput").value);
@@ -629,13 +699,12 @@ function confirmarVenta() {
     if (btnConfirmar) btnConfirmar.disabled = false;
   });
 }
-
-
-
     
     // Al cargar la página
     cargarCategorias();
     cargarProductos();
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </body>
 </html>
