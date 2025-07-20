@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Sistema de Gestión</title>
   <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/cliente.css">
 </head>
+
 <body>
 
   <div id="inventario" class="seccion activo">
@@ -15,24 +18,40 @@
     <input type="text" id="urlImagenManual" placeholder="URL de la imagen"><br>
     <button onclick="agregarImagenManual()">📤 Agregar Imagen</button> -->
 
-    
+
     <div class="container-nav">
       <div class="container-venta-left">
         <h2 class="title">Inventario</h2>
         <h3>Lista de Productos</h3>
       </div>
       <div class="container-venta-button">
-          <button class="btn-sold" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
-          <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
+        <button class="btn-sold" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
+        <button class="btn-primary" onclick="abrirModalAgregarProducto()">➕ Agregar Producto</button>
       </div>
     </div>
 
-    <!-- Modal Venta -->  
+    <!-- Modal Venta -->
     <div id="modalVenta" class="modal">
       <div class="modal-content">
         <span class="close" onclick="cerrarModalVenta()">&times;</span>
-        
+
         <h3>Realizar Venta</h3>
+
+        <!-- FORMULARIO DE VENTA -->
+        <div>
+          <select id="tipoPago">
+            <option value="cash">Efectivo</option>
+            <option value="fiado">Fiado</option>
+          </select>
+
+          <select id="clienteSelect">
+            <option disabled selected>Selecciona cliente</option>
+          </select>
+
+        </div>
+
+
+
         <select id="productoSelect">
           <option value="">Selecciona un producto</option>
         </select>
@@ -64,8 +83,8 @@
         <span class="close" onclick="cerrarModalAgregarProducto()">&times;</span>
         <input class="input-nombre" type="text" id="nombre" placeholder="Nombre del producto"><br>
         <select id="categoriaSelect">
-            <option value="">Selecciona una categoría</option>
-          </select><br>
+          <option value="">Selecciona una categoría</option>
+        </select><br>
         <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
         <button onclick="agregarCategoria()">➕ Agregar Categoría</button><br>
         <input type="number" id="stock" placeholder="Stock"><br>
@@ -92,25 +111,25 @@
       </div>
     </div>
 
-   
 
-      
-      <table>
-        <thead>
-          <tr class="tr">
-            <th>Imagen</th>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Stock</th>
-            <th>Precio</th>
-            <th>Ventas</th>
-            <th></th>
-          </tr>
+
+
+    <table>
+      <thead>
+        <tr class="tr">
+          <th>Imagen</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Stock</th>
+          <th>Precio</th>
+          <th>Ventas</th>
+          <th></th>
+        </tr>
       </thead>
       <tbody id="lista-productos">
         <!-- Aquí se cargarán las filas desde JS -->
       </tbody>
-      </table>
+    </table>
   </div>
 
   <!-- Seccion Ganancias -->
@@ -121,20 +140,45 @@
     <canvas id="graficoGanancias" height="100"></canvas>
     <h4 class="title-historial">Historial de Ventas:</h4>
     <label for="fechaFiltro">Buscar por fecha:</label>
-    <input type="date" id="fechaFiltro"  onchange="filtrarVentasPorFecha()">
+    <input type="date" id="fechaFiltro" onchange="filtrarVentasPorFecha()">
     <ul id="ventas-del-dia"></ul>
 
     <h3 class="title-historial">Productos más vendidos (día seleccionado):</h3>
-<canvas id="graficoMasVendidos" height="100"></canvas>
+    <canvas id="graficoMasVendidos" height="100"></canvas>
 
 
   </div>
 
-  <!-- Seccion Clientes -->
-  <div id="clientes" class="seccion">
-    <h2>Clientes</h2>
-    <p>Clientes que fían próximamente...</p>
+<!-- Seccion Clientes -->
+<div id="clientes" class="seccion">
+  <h2>Clientes que Fían</h2>
+  <button class="btn-primary" onclick="abrirModalNuevoCliente()">➕ Agregar Nuevo Cliente</button>
+  <div id="contenedorClientes" class="clientes-container"></div>
+</div>
+
+<!-- Modal Historial de Fiados -->
+<div id="modalHistorial" class="modal">
+  <div class="modal-contenido">
+    <span class="cerrar" onclick="cerrarModalHistorialCliente()">&times;</span>
+    <div id="historialFiadosContenido"></div>
   </div>
+</div>
+
+
+
+
+  
+
+
+
+
+  <!-- End -->
+
+
+
+
+
+  <!-- End -->
 
   <!-- Modal de selección de imagen -->
   <div class="modal" id="modalImagenes">
@@ -146,738 +190,37 @@
     </div>
   </div>
 
+  <!-- Modal para agregar nuevo cliente -->
+  <div id="modalNuevoCliente" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="cerrarModalNuevoCliente()">&times;</span>
+      <h3>Agregar Nuevo Cliente</h3>
+      <input type="text" id="nombreCliente" placeholder="Nombre del Cliente"><br>
+      <input type="number" id="limiteFiado" placeholder="Límite de Crédito" min="0"><br>
+      <button onclick="agregarCliente()">Guardar Cliente</button>
+    </div>
+  </div>
+
+
+
   <!-- Menú inferior -->
   <div class="menu-inferior">
     <a onclick="mostrarSeccion('inventario')"><span class="icono">📦</span>Inventario</a>
-    <a onclick="mostrarSeccion('ganancias'); mostrarGanancias();"><span class="icono">💰</span>Ganancias</a>  
+    <a onclick="mostrarSeccion('ganancias'); mostrarGanancias();"><span class="icono">💰</span>Ganancias</a>
     <a onclick="mostrarSeccion('clientes')"><span class="icono">👥</span>Clientes</a>
   </div>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCwt9dyCf5iF13R2nhar6F2pKIUkT3Om7Q",
-      authDomain: "paguinasweb-14611.firebaseapp.com",
-      projectId: "paguinasweb-14611",
-      storageBucket: "paguinasweb-14611.appspot.com",
-      messagingSenderId: "1083919701171",
-      appId: "1:1083919701171:web:89d0063a1f9e6e357c4cc6"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    let idProductoActual = null;
-
-    function mostrarGraficoGananciasUltimos7Dias() {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  
-  const dias = [];
-  const gananciasPorDia = new Array(7).fill(0);
-
-  for (let i = 6; i >= 0; i--) {
-    const fecha = new Date(hoy);
-    fecha.setDate(hoy.getDate() - i);
-    dias.push(fecha.toLocaleDateString('es-PE', { weekday: 'short' }));
-  }
-
-  db.collection("ventadb").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const venta = doc.data();
-      const fechaVenta = venta.fecha.toDate();
-      fechaVenta.setHours(0, 0, 0, 0);
-
-      for (let i = 0; i < 7; i++) {
-        const fechaComparar = new Date(hoy);
-        fechaComparar.setDate(hoy.getDate() - (6 - i));
-        if (fechaVenta.getTime() === fechaComparar.getTime()) {
-          gananciasPorDia[i] += venta.total;
-        }
-      }
-    });
-
-    const ctx = document.getElementById('graficoGanancias').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: dias,
-        datasets: [
-          
-          {
-            type: 'line',
-            label: 'Tendencia',
-            borderColor: '#2196F3',
-            borderWidth: 2,
-            fill: false,
-            data: gananciasPorDia
-          },{
-            type: 'bar',
-            label: 'Ganancia',
-            backgroundColor: '#00e408',
-            borderRadius: 5,
-            data: gananciasPorDia
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: 'Ganancias últimos 7 días' }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { callback: v => `S/ ${v}` }
-          }
-        }
-      }
-    });
-  });
-}
-
-
-
-function filtrarVentasPorFecha() {
-  const inputFecha = document.getElementById('fechaFiltro');
-  const listaVentasDia = document.getElementById('ventas-del-dia');
-  const fechaSeleccionada = inputFecha.value;
-
-  if (!fechaSeleccionada) return;
-
-  const fechaInicio = new Date(fechaSeleccionada + "T00:00:00");
-  const fechaFin = new Date(fechaSeleccionada + "T23:59:59");
-
-  listaVentasDia.innerHTML = "Buscando ventas...";
-
-  db.collection("ventadb")
-    .where("fecha", ">=", fechaInicio)
-    .where("fecha", "<=", fechaFin)
-    .orderBy("fecha", "desc")
-    .get()
-    .then(snapshot => {
-      if (snapshot.empty) {
-        listaVentasDia.innerHTML = "<li>No hay ventas para esta fecha.</li>";
-        document.getElementById("monto-total").textContent = "0.00";
-        document.getElementById("ventas-total").textContent = "0";
-        actualizarGraficoMasVendidos({});
-        return;
-      }
-
-      let total = 0;
-      let contador = 0;
-      const conteoProductos = {};
-
-      listaVentasDia.innerHTML = "";
-      snapshot.forEach(doc => {
-        const venta = doc.data();
-        total += venta.total;
-        contador++;
-
-        venta.productos.forEach(p => {
-          if (!conteoProductos[p.nombre]) {
-            conteoProductos[p.nombre] = 0;
-          }
-          conteoProductos[p.nombre] += p.cantidad;
-        });
-
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>Fecha:</strong> ${venta.fecha.toDate().toLocaleString()}<br>
-          <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
-          <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
-        `;
-        listaVentasDia.appendChild(li);
-      });
-
-      document.getElementById("monto-total").textContent = total.toFixed(2);
-      document.getElementById("ventas-total").textContent = contador;
-
-      actualizarGraficoMasVendidos(conteoProductos);
-    });
-}
-
-let graficoMasVendidosInstance = null;
-
-function actualizarGraficoMasVendidos(conteoProductos) {
-  // Convertir el objeto en array y ordenar por cantidad descendente
-  const productosOrdenados = Object.entries(conteoProductos)
-    .sort((a, b) => b[1] - a[1]); // b - a = mayor a menor
-
-  // Construir etiquetas con TOP
-  const labels = productosOrdenados.map((item, index) => `Top ${index + 1}: ${item[0]}`);
-  const cantidades = productosOrdenados.map(item => item[1]);
-
-  const ctx = document.getElementById('graficoMasVendidos').getContext('2d');
-
-  if (graficoMasVendidosInstance) {
-    graficoMasVendidosInstance.destroy();
-  }
-
-  graficoMasVendidosInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Cantidad Vendida',
-        data: cantidades,
-        backgroundColor: '#FF9800',
-        borderRadius: 5
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Top productos más vendidos del día'
-        },
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Unidades vendidas'
-          }
-        }
-      }
-    }
-  });
-}
-
-
-
-
-function mostrarVentasDelDiaActual() {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-
-  const mañana = new Date(hoy);
-  mañana.setDate(mañana.getDate() + 1);
-  mañana.setHours(0, 0, 0, 0);
-
-  const listaVentasDia = document.getElementById('ventas-del-dia');
-  listaVentasDia.innerHTML = "Cargando ventas del día...";
-
-  db.collection("ventadb")
-    .where("fecha", ">=", hoy)
-    .where("fecha", "<", mañana)
-    .orderBy("fecha", "desc")
-    .get()
-    .then(snapshot => {
-      if (snapshot.empty) {
-        listaVentasDia.innerHTML = "<li>No hay ventas hoy.</li>";
-        return;
-      }
-
-      listaVentasDia.innerHTML = "";
-      snapshot.forEach(doc => {
-        const venta = doc.data();
-        const li = document.createElement("li");
-        li.innerHTML = `
-        <div class="venta-item">
-          <strong>ID:</strong> ${doc.id}<br>
-          <strong>Fecha:</strong> ${venta.fecha.toDate().toLocaleString()}<br>
-          <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
-          <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
-        </div>
-        `;
-        listaVentasDia.appendChild(li);
-      });
-    });
-  
-}
-mostrarVentasDelDiaActual();
-mostrarGraficoGananciasUltimos7Dias();
-
-
-
-
-   function mostrarSeccion(id) {
-  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activo'));
-  document.getElementById(id).classList.add('activo');
-
-  if (id === 'ganancias') {
-    mostrarGanancias();
-    mostrarVentasDelDiaActual(); 
-    
-    mostrarGraficoGananciasUltimos7Dias();// si deseas mantener visible las ventas de hoy
-  }
-}
-
-
-    function abrirModalAgregarProducto() {
-      document.getElementById('modalAgregarProducto').style.display = 'flex';
-      cargarCategorias();
-    }
-
-    function cerrarModalAgregarProducto() {
-      document.getElementById('modalAgregarProducto').style.display = 'none';
-    }
-
- function mostrarGanancias() {
-      const ventasRef = db.collection("ventadb").orderBy("fecha", "desc");
-      const montoTotalSpan = document.getElementById("monto-total");
-      const ventasTotalSpan = document.getElementById("ventas-total");
-      const listaVentas = document.getElementById("lista-ventas");
-
-      listaVentas.innerHTML = "Cargando ventas...";
-      let total = 0;
-      let contador = 0;
-
-      ventasRef.get().then(snapshot => {
-        listaVentas.innerHTML = "";
-        snapshot.forEach(doc => {
-          const venta = doc.data();
-          total += venta.total;
-          contador++;
-
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <strong>Fecha:</strong> ${new Date(venta.fecha.toDate()).toLocaleString()}<br>
-            <strong>Total:</strong> S/ ${venta.total.toFixed(2)}<br>
-            <strong>Productos:</strong> ${venta.productos.map(p => `${p.nombre} (x${p.cantidad})`).join(', ')}
-          `;
-          listaVentas.appendChild(li);
-        });
-
-        montoTotalSpan.textContent = total.toFixed(2);
-        ventasTotalSpan.textContent = contador;
-      });
-    }
-
-    
-    function abrirModal() {
-      document.getElementById('modalImagenes').style.display = 'flex';
-      cargarImagenes();
-    }
-
-    function cerrarModal() {
-      document.getElementById('modalImagenes').style.display = 'none';
-    }
-
-function agregarImagenManual() {
-  const nombre = document.getElementById('nombreImagenManual').value.trim();
-  const url = document.getElementById('urlImagenManual').value.trim();
-
-  if (!nombre || !url) {
-    alert("⚠️ Debes completar el nombre y la URL.");
-    return;
-  }
-
-  db.collection("imagenesdb").add({
-    nombre,
-    url,
-    fecha: new Date()
-  }).then(() => {
-    alert("✅ Imagen agregada exitosamente.");
-    document.getElementById('nombreImagenManual').value = "";
-    document.getElementById('urlImagenManual').value = "";
-    cargarImagenes(); // Vuelve a cargar las imágenes
-  }).catch(err => {
-    alert("❌ Error al agregar imagen: " + err.message);
-  });
-}
-
-function cargarImagenes() {
-  const contenedor = document.getElementById('contenedor-imagenes');
-  const buscador = document.getElementById('buscadorImagen');
-  contenedor.innerHTML = "Cargando imágenes...";
-
-  db.collection("imagenesdb").orderBy("fecha", "desc").get().then(snapshot => {
-    const todas = [];
-    snapshot.forEach(doc => todas.push(doc.data()));
-
-    function mostrarFiltradas(filtro) {
-      contenedor.innerHTML = "";
-      const filtradas = todas.filter(img => img.nombre.toLowerCase().includes(filtro.toLowerCase()));
-
-      if (filtradas.length === 0) {
-        contenedor.innerHTML = "<p>No se encontraron imágenes.</p>";
-        return;
-      }
-
-      filtradas.forEach(data => {
-        const img = document.createElement("img");
-        img.src = data.url;
-        img.alt = data.nombre;
-        img.style.cursor = "pointer";
-        img.style.width = "100px";
-        img.style.margin = "6px";
-        img.style.border = "2px solid transparent";
-        img.style.borderRadius = "8px";
-
-        img.onclick = () => {
-          // Detectar qué modal está abierto
-          const modalEditar = document.getElementById('modalEditarProducto');
-          const modalAgregar = document.getElementById('modalAgregarProducto');
-
-          if (modalEditar.style.display === 'flex') {
-            document.getElementById('imagenSeleccionadaEditar').value = data.url;
-          } else if (modalAgregar.style.display === 'flex') {
-            document.getElementById('imagenSeleccionada').value = data.url;
-          }
-
-          cerrarModal();
-        };
-
-        contenedor.appendChild(img);
-      });
-    }
-
-    mostrarFiltradas("");
-    buscador.oninput = () => mostrarFiltradas(buscador.value);
-  });
-}
-
-
-  function cargarProductosEnSelect() {
-  const select = document.getElementById("productoSelect");
-  select.innerHTML = '<option value="">Selecciona un producto</option>';
-
-  db.collection("productodb").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const prod = doc.data();
-
-      // Validamos que el producto tenga precio (debe existir en la BD)
-      if (typeof prod.precio === "number" && prod.precio >= 0) {
-        const option = document.createElement("option");
-        option.value = JSON.stringify({
-          id: doc.id,
-          nombre: prod.nombre,
-          precio: prod.precio
-        });
-        option.textContent = `${prod.nombre} - S/ ${prod.precio.toFixed(2)}`;
-        select.appendChild(option);
-      }
-    });
-  });
-}
-
-
-    function cargarCategorias() {
-      const select = document.getElementById('categoriaSelect');
-      select.innerHTML = `<option value="">Selecciona una categoría</option>`;
-
-      db.collection("categoriasdb").orderBy("nombre").get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            const cat = doc.data();
-            const option = document.createElement("option");
-            option.value = cat.nombre;
-            option.textContent = cat.nombre;
-            select.appendChild(option);
-          });
-        });
-    }
-
-    function agregarCategoria() {
-      const nueva = document.getElementById('nuevaCategoria').value.trim();
-      if (!nueva) return alert("Ingresa el nombre de la categoría");
-
-      db.collection("categoriasdb").add({
-        nombre: nueva,
-        creado: new Date()
-      }).then(() => {
-        alert("✅ Categoría agregada");
-        document.getElementById('nuevaCategoria').value = "";
-        cargarCategorias();
-      });
-    }
-
-
-function agregarProducto() {
-  const nombre = document.getElementById('nombre').value.trim();
-  const categoria = document.getElementById('categoriaSelect').value;
-  const stock = parseInt(document.getElementById('stock').value);
-  const precio = parseFloat(document.getElementById('precio').value); // <- Asegúrate de tener este input en el formulario
-  const imageUrl = document.getElementById('imagenSeleccionada').value;
-
-  if (!nombre || !categoria || isNaN(stock) || isNaN(precio) || !imageUrl) {
-    alert("Completa todos los campos y selecciona una imagen.");
-    return;
-  }
-
-  db.collection("productodb").add({
-    nombre,
-    categoria,
-    stock,
-    precio,
-    ventas: 0,
-    imageUrl,
-    creado: new Date()
-  }).then(() => {
-    alert("✅ Producto agregado");
-    limpiarFormulario();
-    cerrarModalAgregarProducto();
-    cargarProductos();
-  });
-}
-
-
-    function actualizarProducto() {
-      if (!idProductoActual) return alert("Selecciona un producto para actualizar");
-
-      const nombre = document.getElementById('nombre').value.trim();
-      const categoria = document.getElementById('categoriaSelect').value;
-      const stock = parseInt(document.getElementById('stock').value);
-      const ventas = parseInt(document.getElementById('ventas').value);
-      const imageUrl = document.getElementById('imagenSeleccionada').value;
-
-      if (!nombre || !categoria || isNaN(stock) || isNaN(ventas) || !imageUrl) {
-        alert("Completa todos los campos rrr.");
-        return;
-      }
-
-      db.collection("productodb").doc(idProductoActual).update({
-        nombre, categoria, stock, ventas, imageUrl
-      }).then(() => {
-        alert("✅ Producto actualizado");
-        limpiarFormulario();
-        cargarProductos();
-      });
-    }
-
-    function eliminarProducto(id) {
-      if (!confirm("¿Eliminar este producto?")) return;
-      db.collection("productodb").doc(id).delete()
-        .then(() => {
-          alert("✅ Producto eliminado");
-          cargarProductos();
-        });
-    }
-
-    function seleccionarProducto(id, data) {
-      document.getElementById('nombre').value = data.nombre;
-      document.getElementById('categoriaSelect').value = data.categoria;
-      document.getElementById('stock').value = data.stock;
-      document.getElementById('ventas').value = data.ventas;
-      document.getElementById('imagenSeleccionada').value = data.imageUrl;
-      idProductoActual = id;
-    }
-
-   function limpiarFormulario() {
-  document.getElementById('nombre').value = "";
-  document.getElementById('categoriaSelect').value = "";
-  document.getElementById('stock').value = "";
-  document.getElementById('imagenSeleccionada').value = "";
-  idProductoActual = null;
-}
-
-   function cargarProductos() {
-  const tbody = document.getElementById('lista-productos');
-  tbody.innerHTML = "<tr><td colspan='6'>Cargando...</td></tr>";
-
-  db.collection("productodb").orderBy("creado", "desc").get()
-    .then(snapshot => {
-      if (snapshot.empty) {
-        tbody.innerHTML = "<tr><td colspan='6'>No hay productos</td></tr>";
-        return;
-      }
-
-      let html = "";
-      snapshot.forEach(doc => {
-        const prod = doc.data();
-        html += `
-          <tr class="tr tr-hover">
-            <td><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
-            <td>${prod.nombre}</td>
-            <td>${prod.categoria}</td>
-            <td>${prod.stock}</td>
-            <td>S/ ${prod.precio.toFixed(2)}</td>
-            <td>${prod.ventas}</td>
-            <td class="acciones">
-              <button class="btn-edit" onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
-              <button class="btn-delete" onclick="eliminarProducto('${doc.id}')">🗑️</button>
-            </td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    });
-}
-
-    const carrito = [];
-
-    function abrirModalVenta() {
-      document.getElementById("modalVenta").style.display = "block";
-      cargarProductosEnSelect();
-    }
-
-    function cerrarModalVenta() {
-      document.getElementById("modalVenta").style.display = "none";
-      carrito.length = 0;
-      actualizarTabla();
-    }
-
-  function abrirModalEditarProducto(id, data) {
-  idProductoActual = id;
-  document.getElementById('nombreEditar').value = data.nombre || '';
-  // Cargar categorías (igual que antes)
-  db.collection("categoriasdb").orderBy("nombre").get()
-    .then(snapshot => {
-      const selectEditar = document.getElementById('categoriaSelectEditar');
-      selectEditar.innerHTML = `<option value="">Selecciona una categoría</option>`;
-      snapshot.forEach(doc => {
-        const cat = doc.data();
-        const option = document.createElement("option");
-        option.value = cat.nombre;
-        option.textContent = cat.nombre;
-        if (cat.nombre === data.categoria) option.selected = true;
-        selectEditar.appendChild(option);
-      });
-    });
-  document.getElementById('stockEditar').value = data.stock || 0;
-  document.getElementById('precioEditar').value = data.precio.toFixed(2) || 0; // <--- aquí
-  document.getElementById('imagenSeleccionadaEditar').value = data.imageUrl || '';
-
-  document.getElementById('modalEditarProducto').style.display = 'flex';
-}
-
-
-function cerrarModalEditarProducto() {
-  document.getElementById('modalEditarProducto').style.display = 'none';
-  idProductoActual = null;
-}
-
-   function actualizarProductoDesdeModal() {
-  if (!idProductoActual) return alert("Selecciona un producto para actualizar");
-
-  const nombre = document.getElementById('nombreEditar').value.trim();
-  const categoria = document.getElementById('categoriaSelectEditar').value;
-  const stock = parseInt(document.getElementById('stockEditar').value);
-  const precio = parseFloat(document.getElementById('precioEditar').value); // <--- nuevo
-  const imageUrl = document.getElementById('imagenSeleccionadaEditar').value;
-
-  if (!nombre || !categoria || isNaN(stock) || isNaN(precio) || !imageUrl) {
-    alert("Completa todos los campos.");
-    return;
-  }
-
-  db.collection("productodb").doc(idProductoActual).update({
-    nombre,
-    categoria,
-    stock,
-    precio,         // <--- actualizamos precio también
-    imageUrl
-  }).then(() => {
-    alert("✅ Producto actualizado");
-    cerrarModalEditarProducto();
-    cargarProductos();
-  }).catch(err => {
-    alert("❌ Error al actualizar producto: " + err.message);
-  });
-}
-
-    function agregarAlCarrito() {
-      const productoJSON = document.getElementById("productoSelect").value;
-      const cantidad = parseInt(document.getElementById("cantidadInput").value);
-
-      if (!productoJSON || isNaN(cantidad) || cantidad < 1) {
-        alert("Selecciona un producto y una cantidad válida.");
-        return;
-      }
-
-      const producto = JSON.parse(productoJSON);
-      const subtotal = producto.precio * cantidad;
-
-      carrito.push({
-        id: producto.id,
-        nombre: producto.nombre,
-        precio: producto.precio,
-        cantidad,
-        subtotal
-      });
-
-      actualizarTabla();
-    }
-
-    function actualizarTabla() {
-      const tbody = document.getElementById("carritoTabla");
-      tbody.innerHTML = "";
-      let total = 0;
-
-      carrito.forEach(item => {
-        total += item.subtotal;
-        tbody.innerHTML += `
-          <tr>
-            <td>${item.nombre}</td>
-            <td>${item.cantidad}</td>
-            <td>S/ ${item.precio.toFixed(2)}</td>
-            <td>S/ ${item.subtotal.toFixed(2)}</td>
-          </tr>
-        `;
-      });
-
-      document.getElementById("totalVenta").innerText = total.toFixed(2);
-    }
-
-    function cancelarVenta() {
-      if (confirm("¿Cancelar la venta actual?")) {
-        carrito.length = 0;
-        actualizarTabla();
-        cerrarModalVenta();
-        document.getElementById("cantidadInput").value = "";
-      }
-    }
-
-     let ventaEnProceso = false;
-
-function confirmarVenta() {
-  if (ventaEnProceso) return; // Evita que se ejecute si ya está en proceso
-  if (carrito.length === 0) {
-    alert("El carrito está vacío.");
-    return;
-  }
-
-  ventaEnProceso = true;
-  const btnConfirmar = document.querySelector('#modalVenta button[onclick="confirmarVenta()"]');
-  if (btnConfirmar) btnConfirmar.disabled = true;
-
-  const venta = {
-    productos: carrito,
-    total: carrito.reduce((sum, item) => sum + item.subtotal, 0),
-    fecha: new Date()
-  };
-
-  db.collection("ventadb").add(venta).then(() => {
-    const batch = db.batch();
-
-    carrito.forEach(item => {
-      const productoRef = db.collection("productodb").doc(item.id);
-      batch.update(productoRef, {
-        stock: firebase.firestore.FieldValue.increment(-item.cantidad),
-        ventas: firebase.firestore.FieldValue.increment(item.cantidad)
-      });
-    });
-
-    return batch.commit();
-  }).then(() => {
-    alert("✅ Venta registrada y stock actualizado correctamente.");
-    cargarProductos(); // Refresca lista
-    carrito.length = 0;
-    actualizarTabla();
-    cerrarModalVenta();
-  }).catch(err => {
-    alert("❌ Error al registrar la venta: " + err.message);
-  }).finally(() => {
-    ventaEnProceso = false;
-    if (btnConfirmar) btnConfirmar.disabled = false;
-  });
-}
-    
-    // Al cargar la página
-    cargarCategorias();
-    cargarProductos();
-  </script>
+  <script src="js/script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/modals.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
 </body>
+
 </html>
