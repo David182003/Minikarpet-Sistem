@@ -118,36 +118,36 @@ const historialFiadosContenido = document.getElementById("historialFiadosConteni
 
 // Función para cargar clientes desde clientesdb SIN datos por defecto
 function cargarClientes() {
-  contenedorClientes.innerHTML = "Cargando clientes...";
+    contenedorClientes.innerHTML = "Cargando clientes...";
 
-  // Obtenemos todos los clientes
-  db.collection("clientesdb").get().then((clientesSnapshot) => {
-    contenedorClientes.innerHTML = ""; // Limpiar
+    // Obtenemos todos los clientes
+    db.collection("clientesdb").get().then((clientesSnapshot) => {
+        contenedorClientes.innerHTML = ""; // Limpiar
 
-    const clientes = {};
+        const clientes = {};
 
-    clientesSnapshot.forEach((doc) => {
-      const cliente = doc.data();
-      const clienteId = doc.id;
+        clientesSnapshot.forEach((doc) => {
+            const cliente = doc.data();
+            const clienteId = doc.id;
 
-      const nombre = cliente.nombre || "";
-      const inicial = nombre.charAt(0).toUpperCase();
-      const limite = typeof cliente.limiteFiado === "number" ? cliente.limiteFiado : 0;
+            const nombre = cliente.nombre || "";
+            const inicial = nombre.charAt(0).toUpperCase();
+            const limite = typeof cliente.limiteFiado === "number" ? cliente.limiteFiado : 0;
 
-      clientes[clienteId] = {
-        nombre,
-        avatar: cliente.avatar || "",
-        limite,
-        inicial,
-        card: null,
-        totalFiado: 0
-      };
+            clientes[clienteId] = {
+                nombre,
+                avatar: cliente.avatar || "",
+                limite,
+                inicial,
+                card: null,
+                totalFiado: 0
+            };
 
-      // Crear card inicial
-      const card = document.createElement("div");
-      card.classList.add("card-cliente");
+            // Crear card inicial
+            const card = document.createElement("div");
+            card.classList.add("card-cliente");
 
-      card.innerHTML = `
+            card.innerHTML = `
         <div class="avatar-letra">${inicial}</div>
         <h3>${nombre}</h3>
         <div class="barra-progreso" style="background:#ddd; border-radius: 10px; overflow: hidden; height: 16px; margin: 10px 0;">
@@ -156,88 +156,175 @@ function cargarClientes() {
         <p style="margin: 5px 0;">Fiado: <strong>S/ 0.00</strong> / S/ ${limite.toFixed(2)}</p>
       `;
 
-      card.addEventListener("click", () =>
-        mostrarHistorialFiados(clienteId, nombre, "", limite)
-      );
+            card.addEventListener("click", () =>
+                mostrarHistorialFiados(clienteId, nombre, "", limite)
+            );
 
-      clientes[clienteId].card = card;
-      contenedorClientes.appendChild(card);
+            clientes[clienteId].card = card;
+            contenedorClientes.appendChild(card);
+        });
+
+        // Escuchar cambios en fiadosdb
+        db.collection("fiadosdb").onSnapshot((snapshot) => {
+            // Resetear totales
+            Object.keys(clientes).forEach((id) => {
+                clientes[id].totalFiado = 0;
+            });
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const clienteId = data.clienteId;
+                const monto = data.monto || 0;
+
+                if (clientes[clienteId]) {
+                    clientes[clienteId].totalFiado += monto;
+                }
+            });
+
+            // Actualizar las cards
+            Object.entries(clientes).forEach(([clienteId, clienteData]) => {
+                const { card, totalFiado, limite } = clienteData;
+                const porcentaje = limite > 0 ? Math.min((totalFiado / limite) * 100, 100).toFixed(0) : 0;
+                const barra = card.querySelector(".progreso");
+                const texto = card.querySelector("p");
+
+                barra.style.width = `${porcentaje}%`;
+                barra.style.backgroundColor = porcentaje >= 90 ? '#e74c3c' : '#4CAF50';
+                texto.innerHTML = `Fiado: <strong>S/ ${totalFiado.toFixed(2)}</strong> / S/ ${limite.toFixed(2)}`;
+            });
+        });
     });
-
-    // Escuchar cambios en fiadosdb
-    db.collection("fiadosdb").onSnapshot((snapshot) => {
-      // Resetear totales
-      Object.keys(clientes).forEach((id) => {
-        clientes[id].totalFiado = 0;
-      });
-
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const clienteId = data.clienteId;
-        const monto = data.monto || 0;
-
-        if (clientes[clienteId]) {
-          clientes[clienteId].totalFiado += monto;
-        }
-      });
-
-      // Actualizar las cards
-      Object.entries(clientes).forEach(([clienteId, clienteData]) => {
-        const { card, totalFiado, limite } = clienteData;
-        const porcentaje = limite > 0 ? Math.min((totalFiado / limite) * 100, 100).toFixed(0) : 0;
-        const barra = card.querySelector(".progreso");
-        const texto = card.querySelector("p");
-
-        barra.style.width = `${porcentaje}%`;
-        barra.style.backgroundColor = porcentaje >= 90 ? '#e74c3c' : '#4CAF50';
-        texto.innerHTML = `Fiado: <strong>S/ ${totalFiado.toFixed(2)}</strong> / S/ ${limite.toFixed(2)}`;
-      });
-    });
-  });
 }
 
 
 
-// Mostrar historial de fiados para un cliente
-function mostrarHistorialFiados(clienteId, nombre, avatar, limite) {
+// // Mostrar historial de fiados para un cliente
+// function mostrarHistorialFiados(clienteId, nombre, limite) {
+//     db.collection("fiadosdb").where("clienteId", "==", clienteId).get().then((querySnapshot) => {
+//         let total = 0;
+//         const inicial = nombre.charAt(0).toUpperCase();
+//         let contenido = `
+//       <div style="text-align:center;">
+//         <div class="avatar-letra">${inicial}</div>
+//         <h2>${nombre}</h2>
+//       </div>
+
+//       <table class="tabla-fiados">
+//         <thead>
+//           <tr>
+//             <th>Producto</th>
+//             <th>Cantidad</th>
+//              <th>Precio Unitarios</th>
+//             <th>Monto</th>
+//             <th>Fecha</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//     `;
+
+//         querySnapshot.forEach((doc) => {
+//             const fiado = doc.data();
+//             total += fiado.monto || 0;
+//             const fecha = new Date(fiado.fecha?.seconds * 1000).toLocaleDateString("es-PE");
+
+//             contenido += `
+//         <tr>
+//           <td>${fiado.producto}</td>
+//           <td>${fiado.cantidad}</td>
+//           <td>S/ ${fiado.precioUnitario.toFixed(2)}</td>
+//           <td>S/ ${fiado.monto.toFixed(2)}</td>
+//           <td>${fecha}</td>
+//         </tr>
+//       `;
+//         });
+
+//         contenido += `
+//         </tbody>
+//       </table>
+//       <h3 class="h33" style="text-align:right; margin-top:10px;">Total: <strong>S/ ${total.toFixed(2)}</strong> / S/ ${limite}</h3>
+//     `;
+
+//         historialFiadosContenido.innerHTML = contenido;
+//         modalHistorial.style.display = "block";
+//     });
+// }
+
+function mostrarHistorialFiados(clienteId, nombre, limite) {
     db.collection("fiadosdb").where("clienteId", "==", clienteId).get().then((querySnapshot) => {
         let total = 0;
-        let contenido = `
-      <div style="text-align:center;">
-        <img src="${avatar}" style="width:80px; height:80px; border-radius:50%;">
-        <h2>${nombre}</h2>
-      </div>
-      <table class="tabla-fiados">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Monto</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
+        const inicial = nombre.charAt(0).toUpperCase();
+        let contenido = "";
 
+        // ✅ OBTENER FECHA ACTUAL
+        const fechaActual = new Date();
+        const fechaFormateada = fechaActual.toLocaleDateString("es-PE", {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Calculamos el total primero
         querySnapshot.forEach((doc) => {
             const fiado = doc.data();
             total += fiado.monto || 0;
+        });
+        // Avatar y nombre
+        contenido += `
+            <div class="div-total"  style="text-align:center;">
+                <div class="avatar-letra">${inicial}</div>
+                <h2>${nombre}</h2>
+            </div>
+        `;
+
+        // Mostramos el total en la parte superior derecha
+        contenido += `
+          <div class="div-total" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="text-align: left;" >
+                <strong>Fecha:</strong> ${fechaFormateada}
+            </div>
+            <div class="total" style="text-align: right;">
+                <h3 style="margin: 0;">Total: <strong>S/ ${total.toFixed(2)}</strong> ${limite}</h3>
+            </div>
+        </div>
+
+        `;
+
+        
+
+        // Tabla de fiados
+        contenido += `
+            <table class="tabla-fiados">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        querySnapshot.forEach((doc) => {
+            const fiado = doc.data();
             const fecha = new Date(fiado.fecha?.seconds * 1000).toLocaleDateString("es-PE");
             contenido += `
-        <tr>
-          <td>${fiado.producto}</td>
-          <td>${fiado.cantidad}</td>
-          <td>S/ ${fiado.monto.toFixed(2)}</td>
-          <td>${fecha}</td>
-        </tr>
-      `;
+                <tr>
+                    <td>${fiado.producto}</td>
+                    <td>${fiado.cantidad}</td>
+                    <td>S/ ${fiado.precioUnitario.toFixed(2)}</td>
+                    <td>S/ ${fiado.monto.toFixed(2)}</td>
+                    <td>${fecha}</td>
+                </tr>
+            `;
         });
 
         contenido += `
-        </tbody>
-      </table>
-      <h3 style="text-align:right; margin-top:10px;">Total Fiado: <strong>S/ ${total.toFixed(2)}</strong> / S/ ${limite}</h3>
-    `;
+                </tbody>
+            </table>
+        `;
 
         historialFiadosContenido.innerHTML = contenido;
         modalHistorial.style.display = "block";
@@ -247,6 +334,7 @@ function mostrarHistorialFiados(clienteId, nombre, avatar, limite) {
 function cerrarModalHistorialCliente() {
     modalHistorial.style.display = "none";
 }
+
 
 
 function cerrarModalHistorialCliente() {
@@ -284,7 +372,17 @@ function calcularDeudaCliente(idCliente) {
     });
 }
 
-
+document.getElementById('btn-pdf').addEventListener('click', function () {
+    const element = document.getElementById('historialFiadosContenido');
+    const opt = {
+        margin: 0.2,
+        filename: 'boleta.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+});
 
 
 
@@ -295,80 +393,6 @@ function calcularDeudaCliente(idCliente) {
 
 
 // Exportar historial a PDF usando jsPDF y autoTable
-async function exportarHistorialPDF() {
-    const { jsPDF } = window.jspdf;
-
-    // Obtener datos visibles en el modal
-    const nombre = document.getElementById('nombreClienteHistorial').textContent;
-    const deudaText = document.getElementById('totalFiadoMonto').textContent;
-    const fechas = document.getElementById('fechasFiado').textContent;
-
-    // Consultar datos completos desde Firestore para asegurar precisión
-    const clienteId = await getClienteIdByName(nombre); // función auxiliar que crearemos
-
-    const snapshot = await db.collection('fiadosdb')
-        .where('clienteId', '==', clienteId)
-        .orderBy('fecha')
-        .get();
-
-    if (snapshot.empty) {
-        alert("No hay datos para exportar.");
-        return;
-    }
-
-    // Preparar datos para tabla
-    const filas = [];
-    snapshot.forEach(doc => {
-        const f = doc.data();
-        const fecha = f.fecha.toDate().toLocaleDateString();
-        filas.push([
-            fecha,
-            f.producto || '-',
-            f.cantidad || '-',
-            `S/ ${f.precioUnitario?.toFixed(2) || '-'}`,
-            `S/ ${(f.monto || 0).toFixed(2)}`,
-            f.descripcion || '-'
-        ]);
-    });
-
-    // Crear documento
-    const doc = new jsPDF();
-
-    // Título y encabezado
-    doc.setFontSize(18);
-    doc.text("BOLETA DE CONSUMO FIADO", 14, 20);
-
-    doc.setFontSize(14);
-    doc.text(`Cliente: ${nombre}`, 14, 30);
-    doc.text(`Periodo: ${fechas}`, 14, 38);
-
-    // Monto total grande a la derecha
-    doc.setFontSize(24);
-    doc.setTextColor("#d32f2f");
-    doc.text(deudaText, 160, 30, null, null, "right");
-
-    doc.setFontSize(12);
-    doc.setTextColor("#000");
-
-    // Tabla con autoTable
-    doc.autoTable({
-        startY: 45,
-        head: [['Fecha', 'Producto', 'Cantidad', 'Precio Unit.', 'Monto', 'Descripción']],
-        body: filas,
-        styles: { fontSize: 10 },
-        headStyles: { fillColor: '#4caf50' },
-        alternateRowStyles: { fillColor: '#f1f1f1' },
-        margin: { left: 14, right: 14 }
-    });
-
-    // Pie de página con fecha de generación
-    const hoy = new Date().toLocaleString();
-    doc.setFontSize(9);
-    doc.text(`Documento generado el ${hoy}`, 14, doc.internal.pageSize.height - 10);
-
-    // Abrir PDF en nueva ventana
-    doc.output('dataurlnewwindow');
-}
 
 
 // Cargar clientes al inicio

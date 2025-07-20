@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Boleta PDF</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .boleta {
+      background: white;
+      padding: 20px;
+      width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .info {
+      margin-bottom: 10px;
+    }
+    .info span {
+      display: inline-block;
+      width: 120px;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    .total {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    #btn-pdf {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="boleta" id="boleta">
+    <h2>Boleta de Venta</h2>
+    <div class="info"><span>Cliente:</span> Juan Pérez</div>
+    <div class="info"><span>Fecha:</span> 20/07/2025</div>
+    <div class="info"><span>Boleta N°:</span> 000123</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Arroz 1kg</td>
+          <td>2</td>
+          <td>S/ 4.50</td>
+          <td>S/ 9.00</td>
+        </tr>
+        <tr>
+          <td>Gaseosa 1.5L</td>
+          <td>1</td>
+          <td>S/ 5.00</td>
+          <td>S/ 5.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="total">Total: S/ 14.00</div>
+  </div>
+
+  <button id="btn-pdf">Exportar a PDF</button>
+
+  <!-- html2pdf CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    document.getElementById('btn-pdf').addEventListener('click', function () {
+      const element = document.getElementById('boleta');
+      const opt = {
+        margin:       0.5,
+        filename:     'boleta.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    });
+  </script>
+
+</body>
+</html>

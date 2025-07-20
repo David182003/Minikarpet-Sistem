@@ -1,0 +1,32 @@
+*{box-sizing: border-box;}
+.headerbar{background-color: purple; padding: 25px 0; text-align: center;width: 100%;}
+.headerbar h1{color: aliceblue;font-size: 32px;}
+input, label, textarea{margin: 5px auto;}
+input, textarea{background-color: #eee;border-color: #cecece;box-shadow: #33333369 1px 1px 2px 1px;font-size: 18px; width: 100%;border-width: 0;}
+.contentinput span{background-color: purple;padding: 5px 15px 5px 5px;display: block;width: fit-content;margin: 0; color: antiquewhite; font-size: 20px;}
+.butn{background-color: purple; color: white; padding: 5px 15px; border-radius: 3px;text-decoration: none; margin: auto; width: fit-content;display: block;transition: all .5s;cursor: pointer;}
+.butn:hover{transform: scale(1.2);}
+
+/* Modal */
+.mastercards{display: none;position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: #00000021;}
+.cardscont{background-color: #fefefe; margin: 15% auto; padding: 10px;
+width: 80%;border-radius: 10px;animation: fadein .5s;}
+.close{float: right; color: #aaa;font-size: 28px;font-weight: bold;}
+.close:hover, .close:focus{color: black; text-decoration: none; cursor: pointer;}
+.card-header{padding: 2px 15px;background-color: purple;color: white;}
+.card-body{padding: 2px 15px;}
+.card-footer{padding: 20px 15px; background-color: purple; color: white;position: relative;text-align: center;}
+
+/* Slideshow */
+.yg-slidecont{width: 100%;}
+.yg-slidecont .yg-slides{padding: 100px 0;display: none;}
+.yg-slidecont .yg-slds-text{width: 90%;text-align: center;font-size: 3vmax;overflow-y: auto;margin: auto;color: white;}
+.yg-prev, .yg-next, .yg-playpause{cursor: pointer; padding: 5px 10px;background-color: #cecece44;border-radius: 50%;margin: 5px;font-weight: 700;}
+.yg-next{right: 10px;left: auto;}
+.yg-playpause{padding: 15px;}
+.fade { -webkit-animation-name: fade; -webkit-animation-duration: 1.5s; animation-name: fade; animation-duration: 1.5s;}
+
+/* animations */
+@keyframes fadein{from{opacity: 0;transform: scale(0);} to{opacity: 1;transform: scale(1);}}
+@keyframes fadeout{from{opacity: 1;transform: scale(1);} to{opacity: 0;transform: scale(0);}}
+@keyframes fade { from {opacity: .4} to {opacity: 1}}

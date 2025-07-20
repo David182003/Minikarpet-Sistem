@@ -115,10 +115,66 @@
 }
 
 .modal-contenido {
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   margin: 10% auto;
   padding: 20px;
-  width: 80%;
-  max-width: 500px;
+  width: 90%;
+
   border-radius: 8px;
+}
+
+.div-total{
+  background-color: #ffffff;
+  padding: 0% 1%;
+  justify-content: center;
+}
+.total{
+  margin-bottom: 2%;
+}
+.tabla-fiados {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.tabla-fiados th,
+.tabla-fiados td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  width: auto;
+  text-align: center;
+}
+
+.resumen {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.exportar {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #2d89ef;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#btn-pdf {
+  background-color: #D32F2F;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#btn-pdf i {
+  font-size: 18px;
 }
