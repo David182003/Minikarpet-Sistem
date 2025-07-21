@@ -1,168 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>Exportar Historial a PDF</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        #modalHistorial {
-            display: block;
-            /* para demo lo mostramos siempre */
-            border: 1px solid #ccc;
-            padding: 15px;
-            width: 600px;
-            margin-bottom: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
-        }
-
-        .tabla-fiados {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .tabla-fiados th,
-        .tabla-fiados td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .tabla-fiados th {
-            background: #eee;
-        }
-
-        .avatar-letra {
-            width: 50px;
-            height: 50px;
-            background-color: #4CAF50;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            text-align: center;
-            line-height: 50px;
-            border-radius: 50%;
-            margin: 0 auto 10px auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Enviar PDF por Celular</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
 </head>
-
 <body>
+  <h2>Exportar PDF y Enviar por Celular</h2>
+  <input type="text" id="telefono" placeholder="Ingresa número de celular" />
+  <br>
+  <button onclick="generarYEnviarPDF()">Generar PDF y Enviar</button>
 
-    <button onclick="pruebaDivAPdf()">PDF</button>
-    <div id="imprimir">
-        <h1>
-            Esto es un DIV impreso en PDF
-        </h1>
-    </div>
+  <script>
+    async function generarYEnviarPDF() {
+      const numero = document.getElementById("telefono").value.trim();
 
-    <div id="modalHistorial">
-        <div id="contenidoExportar">
-            <div style="text-align:center;">
-                <div class="avatar-letra">B</div>
-                <h2>Britany</h2>
-            </div>
-            <table class="tabla-fiados">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Monto</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Gaseosa</td>
-                        <td>2</td>
-                        <td>S/ 10.00</td>
-                        <td>20/07/2025</td>
-                    </tr>
-                    <tr>
-                        <td>Detergente</td>
-                        <td>1</td>
-                        <td>S/ 7.50</td>
-                        <td>18/07/2025</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h3 style="text-align:right; margin-top:10px;">Total Fiado: <strong>S/ 17.50</strong></h3>
-        </div>
-    </div>
+      if (!numero || numero.length < 6) {
+        alert("Por favor ingresa un número válido.");
+        return;
+      }
 
-    <button id="btnExportarPDF">Exportar a PDF</button>
+      // Crear el PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-    <!-- jsPDF desde CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+      doc.text("Hola, este es tu PDF personalizado.", 10, 20);
+      doc.text(`Enviado al número: ${numero}`, 10, 30);
 
-    <script>
-        // const { jsPDF } = window.jspdf;
+      // Generar el blob del PDF
+      const pdfBlob = doc.output("blob");
 
-        // document.getElementById('btnExportarPDF').addEventListener('click', () => {
-        //     const content = document.getElementById('contenidoExportar');
-        //     if (!content) {
-        //         alert("No se encontró contenido para exportar.");
-        //         return;
-        //     }
+      // Crear un archivo descargable
+      const pdfURL = URL.createObjectURL(pdfBlob);
 
-        //     const doc = new jsPDF('p', 'pt', 'letter');
-        //     const margin = 10;
-        //     const pageWidth = doc.internal.pageSize.getWidth() - margin * 2;
-        //     const contentWidth = content.scrollWidth;
+      // --- Aquí simulamos enviar por WhatsApp (enviar manualmente) ---
+      const mensaje = encodeURIComponent("Hola, aquí está tu archivo PDF.");
+      const linkWhatsApp = `https://wa.me/51${numero}?text=${mensaje}%0ADescarga el PDF desde aquí: ${pdfURL}`;
+      window.open(linkWhatsApp, "_blank");
 
-        //     const scale = pageWidth / contentWidth;
-
-        //     doc.html(content, {
-        //         x: margin,
-        //         y: margin,
-        //         html2canvas: {
-        //             scale: scale,
-        //             useCORS: true,
-        //             scrollY: -window.scrollY
-        //         },
-        //         callback: function (doc) {
-        //             doc.save('historial_fiados.pdf');
-        //         },
-        //         width: pageWidth
-        //     });
-        // });
-
-        function pruebaDivAPdf() {
-            var pdf = new jsPDF('p', 'pt', 'letter');
-            source = $('#imprimir')[0];
-
-            specialElementHandlers = {
-                '#bypassme': function (element, renderer) {
-                    return true
-                }
-            };
-            margins = {
-                top: 80,
-                bottom: 60,
-                left: 40,
-                width: 522
-            };
-
-            pdf.fromHTML(
-                source,
-                margins.left, // x coord
-                margins.top, { // y coord
-                'width': margins.width,
-                'elementHandlers': specialElementHandlers
-            },
-
-                function (dispose) {
-                    pdf.save('Prueba.pdf');
-                }, margins
-            );
-        }
-    </script>
-
+      // Si prefieres descargar el PDF en lugar de usar WhatsApp, descomenta:
+      // doc.save("archivo.pdf");
+    }
+  </script>
 </body>
-
 </html>

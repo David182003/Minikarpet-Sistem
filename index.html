@@ -152,22 +152,31 @@
 
   <!-- Seccion Clientes -->
   <div id="clientes" class="seccion">
-    <h2>Clientes que Fían</h2>
-    <button class="btn-primary" onclick="abrirModalNuevoCliente()">➕ Agregar Nuevo Cliente</button>
+    <div class="container-clientes-title">
+      <div class="container-left-clientes-title">
+        <h2 class="title">Clientes </h2>
+        <p>Clientes con Linea de Credito Aprovadas</p>
+      </div>
+      
+      <button class="btn-primary" onclick="abrirModalNuevoCliente()">➕ Agregar Nuevo Cliente</button>
+    </div>
+  
     <div id="contenedorClientes" class="clientes-container"></div>
   </div>
 
   <!-- Modal Historial de Fiados -->
   <div id="modalHistorial" class="modal">
     <div class="modal-contenido">
-      <span class="cerrar" onclick="cerrarModalHistorialCliente()">&times;</span>
-
+      <div class="container-nav-historial">
+        <img class="img-cerrar" onclick="cerrarModalHistorialCliente()"  src="media/icons8-cancel-94.png" alt="">
+        <button id="btn-pdf">
+          <i class="fas fa-file-pdf"></i> Exportar a PDF
+        </button>
+      </div>
 
 
       <div id="historialFiadosContenido"></div>
-      <button id="btn-pdf">
-        <i class="fas fa-file-pdf"></i> Exportar a PDF
-      </button>
+
     </div>
   </div>
 

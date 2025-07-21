@@ -149,8 +149,8 @@ function cargarClientes() {
 
             card.innerHTML = `
         <div class="avatar-letra">${inicial}</div>
-        <h3>${nombre}</h3>
-        <div class="barra-progreso" style="background:#ddd; border-radius: 10px; overflow: hidden; height: 16px; margin: 10px 0;">
+        <h3 id="nombre-cliente">${nombre}</h3>
+        <div class="barra-progreso" style=" border-radius: 10px; overflow: hidden; height: 16px; margin: 10px 0;">
           <div class="progreso" style="width: 0%; height: 100%; background-color: #4CAF50;"></div>
         </div>
         <p style="margin: 5px 0;">Fiado: <strong>S/ 0.00</strong> / S/ ${limite.toFixed(2)}</p>
@@ -372,19 +372,33 @@ function calcularDeudaCliente(idCliente) {
     });
 }
 
+// document.getElementById('btn-pdf').addEventListener('click', function () {
+//     const element = document.getElementById('historialFiadosContenido');
+//     const opt = {
+//         margin: 0.2,
+//         filename: 'boleta.pdf',
+//         image: { type: 'jpeg', quality: 0.98 },
+//         html2canvas: { scale: 2 },
+//         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+//     };
+//     html2pdf().set(opt).from(element).save();
+// });
+
+
 document.getElementById('btn-pdf').addEventListener('click', function () {
     const element = document.getElementById('historialFiadosContenido');
+    const nombreCliente = document.getElementById('nombre-cliente').innerText.trim();
+
     const opt = {
         margin: 0.2,
-        filename: 'boleta.pdf',
+        filename: `${nombreCliente}_boleta.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
+
     html2pdf().set(opt).from(element).save();
 });
-
-
 
 
 
