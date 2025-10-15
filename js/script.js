@@ -25,7 +25,7 @@ function mostrarGraficoGananciasUltimos7Dias() {
         dias.push(fecha.toLocaleDateString('es-PE', { weekday: 'short' }));
     }
 
-    db.collection("ventadb").get().then(snapshot => {
+    return db.collection("ventadb").get().then(snapshot => {
         snapshot.forEach(doc => {
             const venta = doc.data();
             const fechaVenta = venta.fecha.toDate();
@@ -121,7 +121,7 @@ function cargarClientes() {
     contenedorClientes.innerHTML = "Cargando clientes...";
 
     // Obtenemos todos los clientes
-    db.collection("clientesdb").get().then((clientesSnapshot) => {
+    return db.collection("clientesdb").get().then((clientesSnapshot) => {
         contenedorClientes.innerHTML = ""; // Limpiar
 
         const clientes = {};
@@ -248,7 +248,6 @@ function cargarClientes() {
 //         modalHistorial.style.display = "block";
 //     });
 // }
-
 function mostrarHistorialFiados(clienteId, nombre, limite) {
     db.collection("fiadosdb").where("clienteId", "==", clienteId).get().then((querySnapshot) => {
         let total = 0;
@@ -289,9 +288,6 @@ function mostrarHistorialFiados(clienteId, nombre, limite) {
         </div>
 
         `;
-
-        
-
         // Tabla de fiados
         contenido += `
             <table class="tabla-fiados">
@@ -348,7 +344,7 @@ function cargarClientesEnSelect() {
     const select = document.getElementById('clienteSelect');
     select.innerHTML = '<option value="">-- Selecciona un cliente --</option>';
 
-    db.collection("clientesdb").orderBy("nombre").get().then(snapshot => {
+    return db.collection("clientesdb").orderBy("nombre").get().then(snapshot => {
         snapshot.forEach(doc => {
             const cliente = doc.data();
             const option = document.createElement("option");
@@ -621,7 +617,7 @@ function cargarImagenes() {
     const buscador = document.getElementById('buscadorImagen');
     contenedor.innerHTML = "Cargando imágenes...";
 
-    db.collection("imagenesdb").orderBy("fecha", "desc").get().then(snapshot => {
+    return db.collection("imagenesdb").orderBy("fecha", "desc").get().then(snapshot => {
         const todas = [];
         snapshot.forEach(doc => todas.push(doc.data()));
 
@@ -672,7 +668,7 @@ function cargarProductosEnSelect() {
     const select = document.getElementById("productoSelect");
     select.innerHTML = '<option value="">Selecciona un producto</option>';
 
-    db.collection("productodb").get().then(snapshot => {
+    return db.collection("productodb").get().then(snapshot => {
         snapshot.forEach(doc => {
             const prod = doc.data();
 
@@ -696,7 +692,7 @@ function cargarCategorias() {
     const select = document.getElementById('categoriaSelect');
     select.innerHTML = `<option value="">Selecciona una categoría</option>`;
 
-    db.collection("categoriasdb").orderBy("nombre").get()
+    return db.collection("categoriasdb").orderBy("nombre").get()
         .then(snapshot => {
             snapshot.forEach(doc => {
                 const cat = doc.data();
@@ -808,7 +804,7 @@ function cargarProductos() {
     const tbody = document.getElementById('lista-productos');
     tbody.innerHTML = "<tr><td colspan='6'>Cargando...</td></tr>";
 
-    db.collection("productodb").orderBy("creado", "desc").get()
+    return db.collection("productodb").orderBy("creado", "desc").get()
         .then(snapshot => {
             if (snapshot.empty) {
                 tbody.innerHTML = "<tr><td colspan='6'>No hay productos</td></tr>";
@@ -1018,6 +1014,25 @@ function cancelarVenta() {
     }
 }
 
-// Al cargar la página
-cargarCategorias();
-cargarProductos();
+// Inicialización al cargar la app: esperamos varias promesas y ocultamos el loader
+const _loaderEl = document.getElementById('loader');
+
+Promise.all([
+    cargarClientes(),
+    cargarCategorias(),
+    cargarProductos(),
+    cargarClientesEnSelect(),
+    cargarProductosEnSelect(),
+    cargarImagenes(),
+    mostrarGraficoGananciasUltimos7Dias(),
+    mostrarVentasDelDiaActual()
+]).then(() => {
+    // todo cargado - listo
+}).catch(err => {
+    console.error('Error en carga inicial:', err);
+}).finally(() => {
+    if (_loaderEl) {
+        _loaderEl.classList.add('hidden');
+        setTimeout(() => _loaderEl.remove && _loaderEl.remove(), 600);
+    }
+});

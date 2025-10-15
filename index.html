@@ -12,7 +12,17 @@
 </head>
 
 <body>
-
+  <!-- Loader: se muestra hasta que se carguen los datos iniciales -->
+  <div id="loader" class="loader-overlay">
+    
+    <svg class="pl" width="240" height="240" viewBox="0 0 240 240">
+	<circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 660" stroke-dashoffset="-330" stroke-linecap="round"></circle>
+	<circle class="pl__ring pl__ring--b" cx="120" cy="120" r="35" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 220" stroke-dashoffset="-110" stroke-linecap="round"></circle>
+	<circle class="pl__ring pl__ring--c" cx="85" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
+	<circle class="pl__ring pl__ring--d" cx="155" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
+</svg>
+  </div>
+  <!-- Sección de Inventario -->
   <div id="inventario" class="seccion activo">
     <!-- <h4>Agregar Imagen Manualmente</h4>
     <input type="text" id="nombreImagenManual" placeholder="Nombre de la imagen"><br>
@@ -36,6 +46,7 @@
       <div class="modal-content">
         <span class="close" onclick="cerrarModalVenta()">&times;</span>
 
+        <!-- Link para pagina de iconos  https://iconos8.es/icons/set/3d -->
         <h3>Realizar Venta</h3>
 
         <!-- FORMULARIO DE VENTA -->
@@ -173,28 +184,9 @@
           <i class="fas fa-file-pdf"></i> Exportar a PDF
         </button>
       </div>
-
-
       <div id="historialFiadosContenido"></div>
-
     </div>
   </div>
-
-
-
-
-
-
-
-
-
-  <!-- End -->
-
-
-
-
-
-  <!-- End -->
 
   <!-- Modal de selección de imagen -->
   <div class="modal" id="modalImagenes">
@@ -217,8 +209,6 @@
     </div>
   </div>
 
-
-
   <!-- Menú inferior -->
   <div class="menu-inferior">
     <a onclick="mostrarSeccion('inventario')"><span class="icono">📦</span>Inventario</a>
@@ -230,16 +220,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="js/script.js"></script>
-
   <script src="js/modals.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- html2pdf CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-
-
-
 </body>
 
 </html>
