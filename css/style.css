@@ -19,14 +19,16 @@ table {
 }
 th, td {
   padding: 2px;
-  width: 10px;
+  width:auto;
+
   text-align: center;
   overflow: hidden;
 }
 th {
-  background-color: #ffffff;
+  background-color: #000b6e;
   padding: 1% 2%;
-  color: rgb(0, 0, 0);
+  text-align: center;
+  color: rgb(255, 255, 255);
 }
 .tr{
   border: 1px solid rgb(204, 213, 255);

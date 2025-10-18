@@ -102,7 +102,6 @@
         </select><br>
         <input type="text" id="nuevaCategoria" placeholder="Nueva categoría">
         <button onclick="agregarCategoria()">➕ Agregar Categoría</button>
-        <button onclick="abrirEditorCategoria()" style="margin-left:8px;">🎨 Editar estilos</button><br>
         <input type="number" id="stock" placeholder="Stock"><br>
         <input type="number" step="0.01" id="precio" placeholder="Precio" min="0"><br>
         <button onclick="abrirModal()">Seleccionar Imagen</button>
@@ -130,6 +129,7 @@
 
 
 
+    <div class="table-responsive">
     <table>
       <thead>
         <tr class="tr">
@@ -146,6 +146,7 @@
         <!-- Aquí se cargarán las filas desde JS -->
       </tbody>
     </table>
+    </div>
   </div>
 
   <!-- Seccion Ganancias -->
@@ -213,35 +214,7 @@
     </div>
   </div>
 
-  <!-- Modal Editor de Categoría -->
-  <div id="modalEditorCategoria" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="cerrarEditorCategoria()">&times;</span>
-      <h3>Editar Estilos de Categoría</h3>
-      <label for="editorCategoriaSelect">Categoría</label>
-      <select id="editorCategoriaSelect"></select>
-
-      <label for="editorBackground">Background (hex / css)</label>
-      <input type="text" id="editorBackground" placeholder="#28a745 or hsl(120 60% 40%)">
-
-      <label for="editorColor">Color (texto)</label>
-      <input type="text" id="editorColor" placeholder="#ffffff">
-
-      <label for="editorBorderRadius">Border radius</label>
-      <input type="text" id="editorBorderRadius" placeholder="12px">
-
-      <label for="editorPadding">Padding</label>
-      <input type="text" id="editorPadding" placeholder="4px 8px">
-
-  <label for="editorEmoji">Emoji (opcional)</label>
-  <input type="text" id="editorEmoji" placeholder="🍫">
-
-      <div style="margin-top:10px; display:flex; gap:8px;">
-        <button onclick="guardarEstiloCategoria()">Guardar</button>
-        <button onclick="cerrarEditorCategoria()">Cancelar</button>
-      </div>
-    </div>
-  </div>
+ 
 
   <!-- Menú inferior -->
   <div class="menu-inferior">

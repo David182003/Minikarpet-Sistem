@@ -16,11 +16,11 @@ const categoryStyles = {};
 
 // Default styles you can edit directly in code
 const defaultCategoryStyles = {
-    'alimentos': { background: '#cc8eff49', color: '#56005eff', borderRadius: '12px', padding: 'px 8px' },
+    'alimentos': { background: '#cc8eff49', color: '#56005eff', borderRadius: '12px', padding: '4px 8px' },
     'bebidas': { background: '#ffc107', color: '#222222', borderRadius: '12px', padding: '4px 8px' },
     'limpieza': { background: '#7cfff8d8', color: '#007a74ff', borderRadius: '12px', padding: '4px 8px' },
     'abarrotes': { background: '#ffe08470', color: '#9b7401ff', borderRadius: '12px', padding: '4px 8px' },
-    'golosinas': { background: '#ff0000ff', color: '#ffffff', borderRadius: '12px', padding: '4px 8px' }
+    'golosinas': { background: '#ff97d967', color: '#96005fff', borderRadius: '12px', padding: '4px 8px' }
 };
 
 function getCategoryStyle(categoryName) {
