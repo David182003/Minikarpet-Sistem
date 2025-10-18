@@ -956,7 +956,7 @@ function cargarProductos() {
 
                                 html += `
                     <tr class="tr tr-hover">
-                        <td><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
+                        <td class="td-img"><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
                         <td>${prod.nombre}</td>
                         <td><span class="category-badge ${cls}" ${styleAttr}>${prod.categoria}</span></td>
                         <td>${prod.stock}</td>

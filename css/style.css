@@ -16,19 +16,26 @@ table {
 }
 .acciones{
   width: 10px;
+  text-align: center;
 }
+.th-img{
+  text-align: center;
+}
+
 th, td {
   padding: 2px;
   width:auto;
-
-  text-align: center;
+  text-align: left;
   overflow: hidden;
 }
-th {
-  background-color: #000b6e;
-  padding: 1% 2%;
+.td-img{
   text-align: center;
-  color: rgb(255, 255, 255);
+}
+th {
+  background-color: rgba(235, 239, 255, 0.753);
+  padding: 1% 0%;
+  
+  color: rgb(0, 0, 0);
 }
 .tr{
   border: 1px solid rgb(204, 213, 255);
