@@ -43,6 +43,24 @@ th {
 .tr-hover:hover {
   background-color: #f3f5ffda;
 }
+
+/* Subtle updating animation while filtering */
+tbody.updating { opacity: 0.6; transition: opacity 200ms ease; }
+tbody.updating tr { transform: translateY(2px); }
+/* Row add/remove animations for smooth filtering */
+tbody .row-fade {
+  transition: opacity 220ms ease, transform 220ms ease, height 220ms ease, margin 220ms ease, padding 220ms ease;
+  will-change: opacity, transform, height;
+}
+.row-enter { opacity: 0; transform: translateY(-6px); }
+.row-enter.row-fade { opacity: 1; transform: translateY(0); }
+.row-leave { opacity: 1; transform: translateY(0); }
+.row-leave.row-fade { opacity: 0; transform: translateY(6px); height: 0 !important; padding: 0 !important; margin: 0 !important; }
+
+/* Filter input small helper */
+#filterNombre { padding: 8px; border-radius: 6px; border: 1px solid #c9ccff91; width: 100%; max-width: 390px; 
+  
+}
 .total {
   font-weight: bold;
   font-size: 1.2em;
@@ -274,7 +292,10 @@ th {
   grid-template-columns: 65% 35%;
 }
 .container-venta-left{
-  padding-top: 10px;
+  padding-top: 3%;
+}
+.input-filtro-name{
+  margin-top: 2%;
 }
 .container-venta-button {
       display: block;

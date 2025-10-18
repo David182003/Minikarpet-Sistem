@@ -947,30 +947,123 @@ function cargarProductos() {
                 return;
             }
 
-            let html = "";
-                        snapshot.forEach(doc => {
-                                const prod = doc.data();
-                                const catStyle = getCategoryStyle(prod.categoria);
-                                const styleAttr = `style="background:${catStyle.background};border-radius:${catStyle.borderRadius};color:${catStyle.color || '#fff'};padding:${catStyle.padding || '4px 8px'}"`;
-                                const cls = String(prod.categoria || '').toLowerCase().replace(/\s+/g, '-');
+            // Build array of product objects for caching/rendering
+            const items = [];
+            snapshot.forEach(doc => {
+                const prod = doc.data();
+                prod._id = doc.id;
+                items.push(prod);
+            });
 
-                                html += `
-                    <tr class="tr tr-hover">
-                        <td class="td-img"><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
-                        <td>${prod.nombre}</td>
-                        <td><span class="category-badge ${cls}" ${styleAttr}>${prod.categoria}</span></td>
-                        <td>${prod.stock}</td>
-                        <td>S/ ${prod.precio.toFixed(2)}</td>
-                        <td>${prod.ventas}</td>
-                        <td class="acciones">
-                            <button class="btn-edit" onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
-                            <button class="btn-delete" onclick="eliminarProducto('${doc.id}')">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-                        });
-            tbody.innerHTML = html;
+            // cache globally for filtering
+            window.__cachedProducts = items;
+
+            // render with animated diff
+            renderProductRows(items);
         });
+}
+
+// Debounce helper
+function debounce(fn, wait) {
+    let t = null;
+    return function (...args) {
+        clearTimeout(t);
+        t = setTimeout(() => fn.apply(this, args), wait);
+    };
+}
+
+// Render helper with simple DOM diff and enter/leave animations
+function renderProductRows(items) {
+    const tbody = document.getElementById('lista-productos');
+    // Build map of incoming ids
+    const nextIds = new Set(items.map(i => i._id));
+
+    // Existing rows map
+    const existingRows = Array.from(tbody.querySelectorAll('tr')).reduce((m, tr) => {
+        const id = tr.getAttribute('data-id');
+        if (id) m[id] = tr;
+        return m;
+    }, {});
+
+    // Mark rows that should be removed
+    Object.keys(existingRows).forEach(id => {
+        if (!nextIds.has(id)) {
+            const tr = existingRows[id];
+            tr.classList.add('row-fade', 'row-leave');
+            // after animation remove
+            setTimeout(() => {
+                if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
+            }, 260);
+        }
+    });
+
+    // Create/ensure rows for new items in order
+    const fragment = document.createDocumentFragment();
+    items.forEach(prod => {
+        let tr = existingRows[prod._id];
+        const catStyle = getCategoryStyle(prod.categoria);
+        const styleAttr = `background:${catStyle.background};border-radius:${catStyle.borderRadius};color:${catStyle.color || '#fff'};padding:${catStyle.padding || '4px 8px'}`;
+        const cls = String(prod.categoria || '').toLowerCase().replace(/\s+/g, '-');
+
+        if (!tr) {
+            tr = document.createElement('tr');
+            tr.className = 'tr tr-hover row-fade row-enter';
+            tr.setAttribute('data-id', prod._id);
+            tr.innerHTML = `
+                <td class="td-img"><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
+                <td>${prod.nombre}</td>
+                <td><span class="category-badge ${cls}" style="${styleAttr}">${prod.categoria}</span></td>
+                <td>${prod.stock}</td>
+                <td>S/ ${prod.precio.toFixed(2)}</td>
+                <td>${prod.ventas}</td>
+                <td class="acciones">
+                    <button class="btn-edit" onclick='abrirModalEditarProducto("${prod._id}", ${JSON.stringify(prod)})'>✏️</button>
+                    <button class="btn-delete" onclick="eliminarProducto('${prod._id}')">🗑️</button>
+                </td>
+            `;
+
+            // schedule removal of enter class to animate in
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => tr.classList.remove('row-enter'));
+            });
+        } else {
+            // update innerHTML if changed minimally (name/stock/price)
+            tr.querySelector('td:nth-child(2)').textContent = prod.nombre;
+            tr.querySelector('td:nth-child(4)').textContent = prod.stock;
+            tr.querySelector('td:nth-child(5)').textContent = `S/ ${prod.precio.toFixed(2)}`;
+            tr.querySelector('td:nth-child(6)').textContent = prod.ventas;
+            const badge = tr.querySelector('.category-badge');
+            if (badge) {
+                badge.textContent = prod.categoria;
+                badge.style.cssText = styleAttr;
+            }
+        }
+
+        fragment.appendChild(tr);
+    });
+
+    // apply order
+    tbody.innerHTML = '';
+    tbody.appendChild(fragment);
+}
+
+// Live filtering bound to input
+const inputFilter = document.getElementById('filterNombre');
+if (inputFilter) {
+    const runFilter = debounce(() => {
+        const q = inputFilter.value.trim().toLowerCase();
+        const tbody = document.getElementById('lista-productos');
+        tbody.classList.add('updating');
+
+        setTimeout(() => {
+            const all = window.__cachedProducts || [];
+            const filtered = q ? all.filter(p => (p.nombre || '').toLowerCase().includes(q)) : all.slice();
+            renderProductRows(filtered);
+            tbody.classList.remove('updating');
+        }, 80); // slight delay for feel (still per-keystroke)
+    }, 140); // short debounce for per-keystroke feel
+
+    inputFilter.addEventListener('input', runFilter);
 }
 
 const carrito = [];

@@ -35,8 +35,12 @@
 
     <div class="container-nav">
       <div class="container-venta-left">
-        <h2 class="title">Inventario</h2>
-        <h3>Lista de Productos</h3>
+        <h2 class="tite">Gestion de Productos</h2>
+        
+         <!-- Filtro por nombre (live) -->
+      <div class="input-filtro-name" style="margin-bottom:0px;">
+        <input id="filterNombre" type="search" placeholder="🚀 Filtrar por nombre..." style="width:100%; padding:8px;"> 
+      </div>
       </div>
       <div class="container-venta-button">
         <button class="btn-sold" onclick="abrirModalVenta()">🛒 Realizar Venta</button>
@@ -130,6 +134,7 @@
 
 
     <div class="table-responsive">
+     
     <table>
       <thead>
         <tr class="tr">
