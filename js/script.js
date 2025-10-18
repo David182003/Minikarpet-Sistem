@@ -16,11 +16,11 @@ const categoryStyles = {};
 
 // Default styles you can edit directly in code
 const defaultCategoryStyles = {
-    'alimentos': { background: '#cc8eff49', color: '#56005eff', borderRadius: '12px', padding: '4px 8px' },
+    'alimentos': { background: '#cc8eff49', color: '#56005eff', borderRadius: '12px', padding: 'px 8px' },
     'bebidas': { background: '#ffc107', color: '#222222', borderRadius: '12px', padding: '4px 8px' },
     'limpieza': { background: '#7cfff8d8', color: '#007a74ff', borderRadius: '12px', padding: '4px 8px' },
-    'abarrotes': { background: '#ffe08470', color: '#9b7401ff', borderRadius: '12px', padding: '4px 8px' , emoji: '🛒'},
-    'golosinas': { background: '#ff9fdc75', color: '#860055ff', borderRadius: '12px', padding: '4px 8px', emoji: '🍫' }
+    'abarrotes': { background: '#ffe08470', color: '#9b7401ff', borderRadius: '12px', padding: '4px 8px' },
+    'golosinas': { background: '#ff0000ff', color: '#ffffff', borderRadius: '12px', padding: '4px 8px' }
 };
 
 function getCategoryStyle(categoryName) {
@@ -41,9 +41,8 @@ function getCategoryStyle(categoryName) {
     const borderRadius = fromDefault.borderRadius || fromDb.borderRadius || '10px';
     const color = fromDefault.color || fromDb.color || '#fff';
     const padding = fromDefault.padding || fromDb.padding || '4px 8px';
-    const emoji = fromDefault.emoji || fromDb.emoji || '';
 
-    return { background, borderRadius, color, padding, emoji };
+    return { background, borderRadius, color, padding };
 }
 
 // (duplicate definitions removed)
@@ -429,27 +428,23 @@ function cargarEstiloParaEditar(nombre) {
         document.getElementById('editorColor').value = local.color || '';
         document.getElementById('editorBorderRadius').value = local.borderRadius || '';
         document.getElementById('editorPadding').value = local.padding || '';
-        // emoji
-        if (document.getElementById('editorEmoji')) document.getElementById('editorEmoji').value = local.emoji || '';
         return;
     }
 
     // si no está en cache, consultar Firestore
     db.collection('categoriasdb').where('nombre', '==', nombre).limit(1).get().then(snapshot => {
-            if (!snapshot.empty) {
+        if (!snapshot.empty) {
             const data = snapshot.docs[0].data();
             document.getElementById('editorBackground').value = data.background || '';
             document.getElementById('editorColor').value = data.color || '';
             document.getElementById('editorBorderRadius').value = data.borderRadius || '';
             document.getElementById('editorPadding').value = data.padding || '';
-            if (document.getElementById('editorEmoji')) document.getElementById('editorEmoji').value = data.emoji || '';
         } else {
             // vaciar inputs
             document.getElementById('editorBackground').value = '';
             document.getElementById('editorColor').value = '';
             document.getElementById('editorBorderRadius').value = '';
             document.getElementById('editorPadding').value = '';
-            if (document.getElementById('editorEmoji')) document.getElementById('editorEmoji').value = '';
         }
     });
 }
@@ -462,20 +457,19 @@ function guardarEstiloCategoria() {
     const color = document.getElementById('editorColor').value.trim() || undefined;
     const borderRadius = document.getElementById('editorBorderRadius').value.trim() || undefined;
     const padding = document.getElementById('editorPadding').value.trim() || undefined;
-    const emoji = document.getElementById('editorEmoji') ? document.getElementById('editorEmoji').value.trim() || undefined : undefined;
 
     // Guardar en Firestore (buscar documento por nombre y actualizar o crear uno nuevo)
     db.collection('categoriasdb').where('nombre', '==', nombre).limit(1).get().then(snapshot => {
         if (!snapshot.empty) {
             const docId = snapshot.docs[0].id;
-            return db.collection('categoriasdb').doc(docId).update({ background, color, borderRadius, padding, emoji });
+            return db.collection('categoriasdb').doc(docId).update({ background, color, borderRadius, padding });
         } else {
-            return db.collection('categoriasdb').add({ nombre, background, color, borderRadius, padding, emoji, creado: new Date() });
+            return db.collection('categoriasdb').add({ nombre, background, color, borderRadius, padding, creado: new Date() });
         }
     }).then(() => {
         // actualizar cache local
-    const key = nombre.toLowerCase();
-    categoryStyles[key] = { background, color, borderRadius, padding, emoji };
+        const key = nombre.toLowerCase();
+        categoryStyles[key] = { background, color, borderRadius, padding };
         // refrescar productos y selects
         cargarCategorias();
         cargarProductos();
@@ -835,9 +829,7 @@ function cargarCategorias() {
                 categoryStyles[key] = {
                     background: cat.background || undefined,
                     borderRadius: cat.borderRadius || undefined,
-                    color: cat.color || undefined,
-                    padding: cat.padding || undefined,
-                    emoji: cat.emoji || undefined
+                    color: cat.color || undefined
                 };
 
                 const option = document.createElement("option");
@@ -958,16 +950,15 @@ function cargarProductos() {
             let html = "";
                         snapshot.forEach(doc => {
                                 const prod = doc.data();
-                const catStyle = getCategoryStyle(prod.categoria);
-                const styleAttr = `style="background:${catStyle.background};border-radius:${catStyle.borderRadius};color:${catStyle.color || '#fff'};padding:${catStyle.padding || '4px 8px'}"`;
-                const cls = String(prod.categoria || '').toLowerCase().replace(/\s+/g, '-');
-                const emoji = catStyle.emoji ? (catStyle.emoji + ' ') : '';
+                                const catStyle = getCategoryStyle(prod.categoria);
+                                const styleAttr = `style="background:${catStyle.background};border-radius:${catStyle.borderRadius};color:${catStyle.color || '#fff'};padding:${catStyle.padding || '4px 8px'}"`;
+                                const cls = String(prod.categoria || '').toLowerCase().replace(/\s+/g, '-');
 
-                html += `
+                                html += `
                     <tr class="tr tr-hover">
                         <td><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
                         <td>${prod.nombre}</td>
-            <td><span class="category-badge ${cls}" title="${prod.categoria}" ${styleAttr}>${emoji}${prod.categoria}</span></td>
+                        <td><span class="category-badge ${cls}" ${styleAttr}>${prod.categoria}</span></td>
                         <td>${prod.stock}</td>
                         <td>S/ ${prod.precio.toFixed(2)}</td>
                         <td>${prod.ventas}</td>
