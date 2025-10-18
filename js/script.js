@@ -11,6 +11,42 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let idProductoActual = null;
 
+// Map to store styles loaded from categoriasdb
+const categoryStyles = {};
+
+// Default styles you can edit directly in code
+const defaultCategoryStyles = {
+    'alimentos': { background: '#cc8eff49', color: '#56005eff', borderRadius: '12px', padding: '4px 8px' },
+    'bebidas': { background: '#ffc107', color: '#222222', borderRadius: '12px', padding: '4px 8px' },
+    'limpieza': { background: '#63fcf441', color: '#007a74ff', borderRadius: '12px', padding: '4px 8px' },
+    'abarrotes': { background: '#F4C430', color: '#ffffff', borderRadius: '12px', padding: '4px 8px' },
+    'ropa': { background: '#6f42c1', color: '#ffffff', borderRadius: '12px', padding: '4px 8px' }
+};
+
+function getCategoryStyle(categoryName) {
+    if (!categoryName) return { background: '#777', borderRadius: '12px', color: '#fff' };
+    const key = String(categoryName).toLowerCase().trim();
+    const fromDb = categoryStyles[key] || {};
+    const fromDefault = defaultCategoryStyles[key] || {};
+
+    // decide background: default > db > generated
+    let background = fromDefault.background || fromDb.background || null;
+    if (!background) {
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) hash = key.charCodeAt(i) + ((hash << 5) - hash);
+        const h = Math.abs(hash) % 360;
+        background = `hsl(${h} 70% 45%)`;
+    }
+
+    const borderRadius = fromDefault.borderRadius || fromDb.borderRadius || '10px';
+    const color = fromDefault.color || fromDb.color || '#fff';
+    const padding = fromDefault.padding || fromDb.padding || '4px 8px';
+
+    return { background, borderRadius, color, padding };
+}
+
+// (duplicate definitions removed)
+
 // Funcion para mostrar el gráfico de ganancias de los últimos 7 días
 function mostrarGraficoGananciasUltimos7Dias() {
     const hoy = new Date();
@@ -355,6 +391,95 @@ function cargarClientesEnSelect() {
     });
 }
 
+// --- Category style editor functions ---
+function abrirEditorCategoria() {
+    document.getElementById('modalEditorCategoria').style.display = 'flex';
+    cargarOpcionesEditorCategorias();
+}
+
+function cerrarEditorCategoria() {
+    document.getElementById('modalEditorCategoria').style.display = 'none';
+}
+
+function cargarOpcionesEditorCategorias() {
+    const select = document.getElementById('editorCategoriaSelect');
+    select.innerHTML = '<option value="">Selecciona una categoría</option>';
+    // obtenemos categorías actuales desde la colección (o desde el select principal)
+    db.collection('categoriasdb').orderBy('nombre').get().then(snapshot => {
+        snapshot.forEach(doc => {
+            const cat = doc.data();
+            const opt = document.createElement('option');
+            opt.value = cat.nombre;
+            opt.textContent = cat.nombre;
+            select.appendChild(opt);
+        });
+    }).then(() => {
+        select.onchange = () => cargarEstiloParaEditar(select.value);
+    });
+}
+
+function cargarEstiloParaEditar(nombre) {
+    if (!nombre) return;
+    const key = String(nombre).toLowerCase();
+    // primero buscar en categoryStyles (ya cargado) para rapidez
+    const local = categoryStyles[key];
+    if (local) {
+        document.getElementById('editorBackground').value = local.background || '';
+        document.getElementById('editorColor').value = local.color || '';
+        document.getElementById('editorBorderRadius').value = local.borderRadius || '';
+        document.getElementById('editorPadding').value = local.padding || '';
+        return;
+    }
+
+    // si no está en cache, consultar Firestore
+    db.collection('categoriasdb').where('nombre', '==', nombre).limit(1).get().then(snapshot => {
+        if (!snapshot.empty) {
+            const data = snapshot.docs[0].data();
+            document.getElementById('editorBackground').value = data.background || '';
+            document.getElementById('editorColor').value = data.color || '';
+            document.getElementById('editorBorderRadius').value = data.borderRadius || '';
+            document.getElementById('editorPadding').value = data.padding || '';
+        } else {
+            // vaciar inputs
+            document.getElementById('editorBackground').value = '';
+            document.getElementById('editorColor').value = '';
+            document.getElementById('editorBorderRadius').value = '';
+            document.getElementById('editorPadding').value = '';
+        }
+    });
+}
+
+function guardarEstiloCategoria() {
+    const nombre = document.getElementById('editorCategoriaSelect').value;
+    if (!nombre) return alert('Selecciona una categoría para editar');
+
+    const background = document.getElementById('editorBackground').value.trim() || undefined;
+    const color = document.getElementById('editorColor').value.trim() || undefined;
+    const borderRadius = document.getElementById('editorBorderRadius').value.trim() || undefined;
+    const padding = document.getElementById('editorPadding').value.trim() || undefined;
+
+    // Guardar en Firestore (buscar documento por nombre y actualizar o crear uno nuevo)
+    db.collection('categoriasdb').where('nombre', '==', nombre).limit(1).get().then(snapshot => {
+        if (!snapshot.empty) {
+            const docId = snapshot.docs[0].id;
+            return db.collection('categoriasdb').doc(docId).update({ background, color, borderRadius, padding });
+        } else {
+            return db.collection('categoriasdb').add({ nombre, background, color, borderRadius, padding, creado: new Date() });
+        }
+    }).then(() => {
+        // actualizar cache local
+        const key = nombre.toLowerCase();
+        categoryStyles[key] = { background, color, borderRadius, padding };
+        // refrescar productos y selects
+        cargarCategorias();
+        cargarProductos();
+        cargarProductosEnSelect();
+        cargarClientesEnSelect();
+        alert('Estilo guardado');
+        cerrarEditorCategoria();
+    }).catch(err => alert('Error guardando estilo: ' + err.message));
+}
+
 
 // Calcular deuda total (sumar productos fiados) para un cliente (id)
 function calcularDeudaCliente(idCliente) {
@@ -696,9 +821,20 @@ function cargarCategorias() {
         .then(snapshot => {
             snapshot.forEach(doc => {
                 const cat = doc.data();
+                const nombre = String(cat.nombre || '').trim();
+                if (!nombre) return;
+
+                // store style info in categoryStyles map (if provided in doc)
+                const key = nombre.toLowerCase();
+                categoryStyles[key] = {
+                    background: cat.background || undefined,
+                    borderRadius: cat.borderRadius || undefined,
+                    color: cat.color || undefined
+                };
+
                 const option = document.createElement("option");
-                option.value = cat.nombre;
-                option.textContent = cat.nombre;
+                option.value = nombre;
+                option.textContent = nombre;
                 select.appendChild(option);
             });
         });
@@ -812,23 +948,27 @@ function cargarProductos() {
             }
 
             let html = "";
-            snapshot.forEach(doc => {
-                const prod = doc.data();
-                html += `
-          <tr class="tr tr-hover">
-            <td><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
-            <td>${prod.nombre}</td>
-            <td>${prod.categoria}</td>
-            <td>${prod.stock}</td>
-            <td>S/ ${prod.precio.toFixed(2)}</td>
-            <td>${prod.ventas}</td>
-            <td class="acciones">
-              <button class="btn-edit" onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
-              <button class="btn-delete" onclick="eliminarProducto('${doc.id}')">🗑️</button>
-            </td>
-          </tr>
-        `;
-            });
+                        snapshot.forEach(doc => {
+                                const prod = doc.data();
+                                const catStyle = getCategoryStyle(prod.categoria);
+                                const styleAttr = `style="background:${catStyle.background};border-radius:${catStyle.borderRadius};color:${catStyle.color || '#fff'};padding:${catStyle.padding || '4px 8px'}"`;
+                                const cls = String(prod.categoria || '').toLowerCase().replace(/\s+/g, '-');
+
+                                html += `
+                    <tr class="tr tr-hover">
+                        <td><img class="imagen-producto" src="${prod.imageUrl}" width="100"  style="object-fit:cover; border-radius:4px;"></td>
+                        <td>${prod.nombre}</td>
+                        <td><span class="category-badge ${cls}" ${styleAttr}>${prod.categoria}</span></td>
+                        <td>${prod.stock}</td>
+                        <td>S/ ${prod.precio.toFixed(2)}</td>
+                        <td>${prod.ventas}</td>
+                        <td class="acciones">
+                            <button class="btn-edit" onclick='abrirModalEditarProducto("${doc.id}", ${JSON.stringify(prod)})'>✏️</button>
+                            <button class="btn-delete" onclick="eliminarProducto('${doc.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+                        });
             tbody.innerHTML = html;
         });
 }
@@ -1017,17 +1157,17 @@ function cancelarVenta() {
 // Inicialización al cargar la app: esperamos varias promesas y ocultamos el loader
 const _loaderEl = document.getElementById('loader');
 
-Promise.all([
-    cargarClientes(),
-    cargarCategorias(),
-    cargarProductos(),
-    cargarClientesEnSelect(),
-    cargarProductosEnSelect(),
-    cargarImagenes(),
-    mostrarGraficoGananciasUltimos7Dias(),
-    mostrarVentasDelDiaActual()
-]).then(() => {
-    // todo cargado - listo
+// Load categories first so styles are available, then run the rest in parallel
+cargarCategorias().then(() => {
+    return Promise.all([
+        cargarClientes(),
+        cargarProductos(),
+        cargarClientesEnSelect(),
+        cargarProductosEnSelect(),
+        cargarImagenes(),
+        mostrarGraficoGananciasUltimos7Dias(),
+        mostrarVentasDelDiaActual()
+    ]);
 }).catch(err => {
     console.error('Error en carga inicial:', err);
 }).finally(() => {
